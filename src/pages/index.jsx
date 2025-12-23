@@ -1,13 +1,47 @@
 import React from "react";
 import Head from "next/head";
+
 import Header from "../components/layout/Header/Header";
 import Footer from "../components/layout/Footer/Footer";
+
+import HeroAdsSlider from "../components/pages/home/HeroAdsSlider";
+import CategoryCircles from "../components/pages/home/CategoryCircles";
+import DoubleBanners from "../components/pages/home/DoubleBanners";
+import ProductRail from "../components/pages/home/ProductRail";
+import CentersRail from "../components/pages/home/CentersRail";
+import AboutSolicoSplit from "../components/pages/home/AboutSolicoSplit";
+
+import ads from "../../mock-data/ads.json";
+import slides from "../../mock-data/slides.json";
+import categories from "../../mock-data/categories.json";
+import bestProducts from "../../mock-data/products-best.json";
+import newProducts from "../../mock-data/products-new.json";
+import centers from "../../mock-data/centers.json";
+
+const bannerPromos = [
+  {
+    id: 1,
+    kicker: "ویژه تابستان",
+    title: "مسیرهای جذاب بدون نیاز به پرداخت",
+    subtitle: "تمام بنرها صرفاً برای نمایش تجربه کاربری هستند.",
+    image: "/placeholders/banner-wide.svg",
+    alt: "بنر ویژه تابستان",
+  },
+  {
+    id: 2,
+    kicker: "پیشنهاد هدیه",
+    title: "کارت‌های تجربه آموزشی نمایشی",
+    subtitle: "امکان تست رابط کاربری برای خانواده‌ها و مربیان.",
+    image: "/placeholders/banner-wide.svg",
+    alt: "بنر پیشنهاد هدیه",
+  },
+];
 
 const HomePage = () => {
   const meta = {
     title: "مهر سلیمان | سولی لرنو",
     description:
-      "چارچوب نمایشی صفحه اصلی مهر سلیمان برای نمایش تجربه آموزشی سولی لرنو؛ بدون اتصال به سرویس یا پرداخت واقعی.",
+      "نسخه دمو صفحه اصلی مهر سلیمان برای نمایش تجربه آموزشی سولی لرنو؛ بدون اتصال به سرویس یا پرداخت واقعی.",
   };
 
   return (
@@ -24,61 +58,69 @@ const HomePage = () => {
       <Header />
 
       <main id="main-content">
-        <section id="hero-ads-slider" aria-label="اسلایدر و باکس‌های نمایشی">
+        {/* Section 1: Hero Ads + Slider */}
+        <section id="hero-ads-slider" aria-label="تبلیغات و اسلایدر اصلی">
           <div className="container">
             <p className="eyebrow">سولی لرنو</p>
             <h1>مهر سلیمان</h1>
-            <h2>ویترین اولیه صفحه اصلی</h2>
-            <p>
-              این بخش برای جای‌گذاری اسلایدر عریض و شبکه ۲x۲ بنر تبلیغاتی در نسخه
-              نهایی استفاده خواهد شد.
-            </p>
+            {/* H2 برای سکشن (حفظ ساختار سئو) */}
+            <h2 className="sr-only">اسلایدر و تبلیغات</h2>
           </div>
+          <HeroAdsSlider ads={ads} slides={slides} />
         </section>
 
+        {/* Section 2: Categories */}
         <section id="category-circles" aria-label="دسته‌بندی‌های آموزشی">
           <div className="container">
-            <h2>دسته‌بندی‌های محبوب</h2>
-            <p>جایگاه دایره‌های دسته‌بندی برای مرور سریع مسیرهای آموزشی.</p>
+            <h2>دسته‌بندی‌ها</h2>
           </div>
+          <CategoryCircles categories={categories} />
         </section>
 
-        <section id="double-banners" aria-label="دو بنر ویژه">
+        {/* Section 3: Double banners */}
+        <section id="double-banners" aria-label="بنرهای تبلیغاتی ویژه">
           <div className="container">
-            <h2>دو بنر ویژه</h2>
-            <p>دو بنر عریض برای کمپین‌های نمایشی در نمای دسکتاپ و موبایل.</p>
+            <h2>پیشنهادهای ویژه</h2>
           </div>
+          <DoubleBanners banners={bannerPromos} />
         </section>
 
-        <section id="best-sellers" aria-label="پرفروش‌ترین‌ها">
-          <div className="container">
-            <h2>پرفروش‌ترین‌ها</h2>
-            <p>ریل افقی محصولات محبوب با نشان تخفیف و قیمت در نسخه بعدی.</p>
-          </div>
+        {/* Section 4: Best sellers */}
+        <section id="best-sellers" aria-label="پرفروش‌ترین محصولات">
+          <ProductRail
+            title="پرفروش‌ترین‌ها"
+            subtitle="منتخب نمایشی با داده ماک"
+            products={bestProducts}
+            variant="best"
+            headingId="best-products-heading"
+          />
         </section>
 
-        <section id="newest" aria-label="جدیدترین‌ها">
-          <div className="container">
-            <h2>جدیدترین‌ها</h2>
-            <p>ریل افقی محصولات تازه اضافه‌شده با رنگ‌بندی متفاوت.</p>
-          </div>
+        {/* Section 5: Newest */}
+        <section id="newest" aria-label="جدیدترین محصولات">
+          <ProductRail
+            title="جدیدترین‌ها"
+            subtitle="تازه‌های اضافه‌شده به نسخه دمو"
+            products={newProducts}
+            variant="new"
+            headingId="new-products-heading"
+          />
         </section>
 
+        {/* Section 6: Top centers */}
         <section id="top-centers" aria-label="محبوب‌ترین مراکز آموزشی">
           <div className="container">
             <h2>محبوب‌ترین مراکز آموزشی</h2>
-            <p>جایگاه لوگو مراکز آموزشی با اسکرول افقی.</p>
           </div>
+          <CentersRail centers={centers} />
         </section>
 
-        <section id="about-solico" aria-label="درباره سولی لرنو">
+        {/* Section 7: About Solico */}
+        <section id="about-solico" aria-label="معرفی سولیکو">
           <div className="container">
             <h2>درباره سولیکو</h2>
-            <p>
-              معرفی کوتاه سولیکو به صورت متنی و تصویر نمایشی؛ در این مرحله تنها
-              اسکلت معنایی آماده شده است.
-            </p>
           </div>
+          <AboutSolicoSplit />
         </section>
       </main>
 
