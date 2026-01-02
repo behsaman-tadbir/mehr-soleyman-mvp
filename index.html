@@ -19,9 +19,14 @@
 <span class="brand-title brand-title--grad">بهسایار</span>
 </a>
 <form class="header-search header-search--muted" role="search">
-<label class="sr-only" for="q">جستجو</label>
-<input aria-label="جستجو" id="q" name="q" placeholder="جستجوی دوره، کلاس، آزمون…" type="search"/>
-<button aria-label="جستجو" class="search-btn" type="submit">🔍</button>
+  <label class="sr-only" for="q">جستجو</label>
+  <button aria-label="جستجو" class="search-btn" type="submit">
+    <svg aria-hidden="true" class="search-ico" viewBox="0 0 24 24" focusable="false">
+      <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <input aria-label="جستجو" id="q" name="q" placeholder="جستجو" type="search"/>
 </form>
 </div>
 <div class="header-left header-left--dk2">
@@ -49,7 +54,7 @@
 <!-- Logged in -->
 <div class="user-menu" hidden="" id="headerUserMenu">
 <button aria-expanded="false" class="user-menu__trigger" id="userMenuTrigger" type="button">
-<span class="um-avatar"><img alt="آواتار" id="userMenuAvatar" src="images/1002.jpg"/></span>
+<span class="um-avatar"><img alt="آواتار" id="userMenuAvatar" src="images/placeholder.svg"/></span>
 <span aria-hidden="true" class="um-caret">▾</span>
 </button>
 <div class="user-menu__dropdown" hidden="" id="userMenuDropdown">
@@ -83,9 +88,7 @@
 <a href="services.html?cat=mid2">متوسطه دوم</a>
 <a href="services.html?cat=konkur">کنکور و دانشگاه</a>
 <a href="services.html?cat=online">کلاس‌های آنلاین</a>
-<a href="services.html?cat=lang">کلاس زبان</a>
-<a href="services.html?cat=computer">کلاس کامپیوتر</a>
-<a href="services.html?cat=skills">کلاس‌های مهارتی</a></div>
+<a href="services.html?cat=lang">کلاس زبان</a><a href="services.html?cat=computer">کلاس کامپیوتر</a><a href="services.html?cat=skills">کلاس‌های مهارتی</a></div>
 </div>
 </li>
 <li class="nav-item"><a class="nav-link nav-link--muted" href="services.html">محصولات</a></li>
