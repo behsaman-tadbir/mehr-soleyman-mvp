@@ -354,7 +354,8 @@
     const userMenu = qs('#headerUserMenu');
 
     const mobileLoginForm = qs('#mobileLoginForm');
-    const mobileUserMenu = qs('#mobileUserMenu');
+    // Mobile account actions live inside the bottom sheet
+    const mobileUserMenu = qs('#mobileAccountActions');
 
     const bnText = qs('#bnAuthText');
 
