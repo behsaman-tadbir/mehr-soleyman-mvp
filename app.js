@@ -10,6 +10,15 @@
   const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
   const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
 
+  // Prevent accidental double-binding (e.g., if app.js is included twice)
+  const markBound = (el, key) => {
+    if (!el) return false;
+    const k = `bsBound_${key}`;
+    if (el.dataset && el.dataset[k] === '1') return true;
+    if (el.dataset) el.dataset[k] = '1';
+    return false;
+  };
+
   const LS = {
     get(key, fallback) {
       try {
@@ -129,6 +138,7 @@
     const form = qs('#headerInlineLoginForm');
 
     if (!btn || !pop || !form) return;
+    if (markBound(btn, 'headerAuth')) return;
 
     const open = () => {
       pop.hidden = false;
@@ -181,6 +191,7 @@
     const trigger = qs('#userMenuTrigger');
     const drop = qs('#userMenuDropdown');
     if (!trigger || !drop) return;
+    if (markBound(trigger, 'userMenu')) return;
 
     const open = () => {
       drop.hidden = false;
@@ -216,6 +227,7 @@
 
   // ---------- UI: Bottom sheets (Mobile) ----------
   function bindSheets() {
+    if (markBound(document.documentElement, 'sheets')) return;
     qsa('[data-sheet-close]').forEach((el) => {
       on(el, 'click', () => {
         const sheet = el.closest('.bottom-sheet');
@@ -233,6 +245,7 @@
     const btn = qs('#bnAuthBtn');
     const sheet = qs('#mobileAuthSheet');
     if (!btn || !sheet) return;
+    if (markBound(btn, 'mobileAuth')) return;
 
     on(btn, 'click', (e) => {
       e.preventDefault();
@@ -264,33 +277,41 @@
 
   // ---------- UI: Categories dropdown (Desktop) ----------
   function bindCategoriesDropdown() {
-    const tgl = qs('.nav-dropdown-toggle');
-    const panel = qs('.dropdown-panel');
-    if (!tgl || !panel) return;
+    const items = qsa('.nav-item.has-dropdown');
+    if (!items.length) return;
 
-    const open = () => {
-      panel.hidden = false;
-      tgl.setAttribute('aria-expanded', 'true');
-    };
-    const close = () => {
-      panel.hidden = true;
-      tgl.setAttribute('aria-expanded', 'false');
-    };
+    items.forEach((item) => {
+      const tgl = qs('.nav-dropdown-toggle', item);
+      const panel = qs('.dropdown-panel', item);
+      if (!tgl || !panel) return;
+      if (markBound(tgl, 'cats')) return;
 
-    on(tgl, 'click', (e) => {
-      e.preventDefault();
-      if (!panel.hidden) close(); else open();
-    });
+      const open = () => {
+        panel.hidden = false;
+        tgl.setAttribute('aria-expanded', 'true');
+        item.classList.add('is-open');
+      };
+      const close = () => {
+        panel.hidden = true;
+        tgl.setAttribute('aria-expanded', 'false');
+        item.classList.remove('is-open');
+      };
 
-    on(document, 'click', (e) => {
-      const t = e.target;
-      if (panel.hidden) return;
-      if (tgl.contains(t) || panel.contains(t)) return;
-      close();
-    });
+      on(tgl, 'click', (e) => {
+        e.preventDefault();
+        if (!panel.hidden) close(); else open();
+      });
 
-    on(document, 'keydown', (e) => {
-      if (e.key === 'Escape' && !panel.hidden) close();
+      on(document, 'click', (e) => {
+        const t = e.target;
+        if (panel.hidden) return;
+        if (tgl.contains(t) || panel.contains(t)) return;
+        close();
+      });
+
+      on(document, 'keydown', (e) => {
+        if (e.key === 'Escape' && !panel.hidden) close();
+      });
     });
   }
 

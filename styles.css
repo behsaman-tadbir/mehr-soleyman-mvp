@@ -57,3 +57,16 @@
 .search-input{width:100%;min-height:44px;padding:10px 14px;border-radius:14px;border:1px solid color-mix(in oklab,var(--text)10%,white 90%);background:color-mix(in oklab, var(--surface) 70%, #eef2f7 30%);color:color-mix(in oklab,var(--text) 70%, #6b7280 30%)}
 
 .search-input::placeholder{color:#9aa4b2}
+
+/* ---- Hotfix: in muted main-nav, dropdown toggle must also be muted (not primary blue) ---- */
+.main-nav--muted .nav-dropdown-toggle{background:transparent !important;border-color:transparent !important;box-shadow:none !important;color:rgba(15,23,42,.55) !important;font-weight:900}
+.main-nav--muted .nav-dropdown-toggle:hover{color:rgba(37,99,235,.85) !important;background:rgba(15,23,42,.04) !important}
+
+/* Ensure dropdown panel is clickable above header layers */
+.nav-item.has-dropdown{z-index:3400}
+.nav-item.has-dropdown .dropdown-panel{z-index:9999}
+
+/* Tablet/desktop: prevent search min-width from forcing overflow */
+@media(min-width:769px){
+  .header-search--muted{min-width:min(360px,46vw) !important;max-width:560px !important;flex:1}
+}
