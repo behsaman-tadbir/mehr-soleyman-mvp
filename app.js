@@ -331,13 +331,28 @@
       if (!tgl || !panel) return;
       if (markBound(tgl, 'cats')) return;
 
-      const open = () => {
+            let openScrollY = 0;
+      let scrollUnbind = null;
+
+const open = () => {
         panel.hidden = false;
+        openScrollY = window.scrollY;
+        if (!scrollUnbind) {
+          const onScroll = () => {
+            if (Math.abs(window.scrollY - openScrollY) > 24) close();
+          };
+          window.addEventListener('scroll', onScroll, { passive: true });
+          scrollUnbind = () => window.removeEventListener('scroll', onScroll);
+        }
         tgl.setAttribute('aria-expanded', 'true');
         item.classList.add('is-open');
       };
       const close = () => {
         panel.hidden = true;
+        if (scrollUnbind) {
+          scrollUnbind();
+          scrollUnbind = null;
+        }
         tgl.setAttribute('aria-expanded', 'false');
         item.classList.remove('is-open');
       };
