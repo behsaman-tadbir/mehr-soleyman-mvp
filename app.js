@@ -136,12 +136,14 @@
     const btn = qs('#headerAuthBtn');
     const pop = qs('#headerAuthPopover');
     const form = qs('#headerInlineLoginForm');
+    const closeBtn = qs('#headerAuthClose');
 
     if (!btn || !pop || !form) return;
     if (markBound(btn, 'headerAuth')) return;
 
     const open = () => {
       pop.hidden = false;
+      document.body.classList.add('modal-open');
       btn.setAttribute('aria-expanded', 'true');
       btn.classList.add('is-open');
       const first = qs('input', pop);
@@ -150,6 +152,7 @@
 
     const close = () => {
       pop.hidden = true;
+      document.body.classList.remove('modal-open');
       btn.setAttribute('aria-expanded', 'false');
       btn.classList.remove('is-open');
     };
@@ -158,6 +161,18 @@
       e.preventDefault();
       if (!pop.hidden) close(); else open();
     });
+
+    // Close button inside modal
+    closeBtn && on(closeBtn, 'click', (e) => {
+      e.preventDefault();
+      close();
+    });
+
+    // Backdrop click closes (but clicking inside the dialog does not)
+    on(pop, 'click', (e) => {
+      if (e.target === pop) close();
+    });
+
 
     on(document, 'click', (e) => {
       if (pop.hidden) return;

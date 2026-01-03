@@ -34,7 +34,12 @@
 <div class="auth-area" id="authArea">
 <!-- Logged out -->
 <button aria-expanded="false" aria-haspopup="dialog" class="auth-trigger" id="headerAuthBtn" type="button"><span aria-hidden="true" class="auth-ico">⎆</span> ورود</button>
-<div class="auth-popover" hidden="" id="headerAuthPopover">
+<div class="auth-modal" hidden="" id="headerAuthPopover" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+  <div class="auth-modal__dialog" role="document">
+    <div class="auth-modal__head">
+      <div class="auth-modal__title" id="authModalTitle">ورود به سامانه</div>
+      <button type="button" class="auth-modal__close" id="headerAuthClose" aria-label="بستن">×</button>
+    </div>
 <form class="auth-form" id="headerInlineLoginForm">
 <div class="auth-row">
 <label class="auth-label" for="headerLoginUsername">نام کاربری</label>
@@ -51,6 +56,7 @@
 <a href="login.html">فراموشی رمز عبور</a>
 </div>
 </form>
+</div>
 </div>
 <!-- Logged in -->
 <div class="user-menu" hidden="" id="headerUserMenu">
