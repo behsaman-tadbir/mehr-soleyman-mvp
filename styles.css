@@ -520,3 +520,84 @@ body.modal-open{overflow:hidden}
   }
 }
 
+
+
+
+/* ===== Step Q: Mobile header (brand right + search left) + Home responsive alignment ===== */
+
+/* Mobile header: show brand + search only */
+@media (max-width: 768px){
+  .site-header .header-left--dk2,
+  .site-header .header-bottom{
+    display: none !important;
+  }
+
+  .site-header .header-top--dk2{
+    align-items: center;
+    gap: 10px;
+  }
+
+  .site-header .header-right--dk2{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .site-header .brand-link{
+    flex: 0 0 auto;
+  }
+
+  .site-header .header-search{
+    display: flex !important;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin-right: 10px;
+    padding: 0 14px;
+  }
+
+  .site-header .header-search .search-hint{
+    white-space: nowrap;
+    font-size: 0.92rem;
+    color: rgba(51, 65, 85, 0.72);
+  }
+
+  .site-header .header-search input[type="search"]{
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* Hero: slider first, ads below on mobile */
+@media (max-width: 768px){
+  .hero-grid{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .hero-grid .post-slider{ order: 1; }
+  .hero-grid .ads-rubik{ order: 2; }
+}
+
+/* Categories: center and balance */
+.category-circles{
+  justify-items: center;
+  margin-inline: auto;
+}
+@media (max-width: 768px){
+  .category-circles{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Popular centers: center on desktop, rail on mobile */
+@media (min-width: 769px){
+  .logo-rail{
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+}
