@@ -387,25 +387,58 @@
     if (!header || !bottom) return;
     if (markBound(window, 'headerBottomCollapse')) return;
 
+    // Hysteresis-based collapse to avoid flicker ("پرپر زدن")
     let lastY = window.scrollY || 0;
     let ticking = false;
+    let isCollapsed = header.classList.contains('is-bottom-collapsed');
 
-    const THRESHOLD_HIDE = 24;   // px after which we allow hiding
-    const DELTA_SHOW = 6;        // px upward movement to show again
+    const HIDE_AT = 80;      // collapse after user has scrolled a bit
+    const SHOW_AT = 40;      // expand when near top
+    const MIN_DELTA = 2;     // ignore micro scroll noise
+    const UP_DELTA = 18;     // user intent to go up
 
     on(window, 'scroll', () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         ticking = false;
+
         const y = window.scrollY || 0;
 
-        // Always show near top
+        // Always show near very top
         if (y <= 8) {
-          header.classList.remove('is-bottom-collapsed');
+          if (isCollapsed) {
+            header.classList.remove('is-bottom-collapsed');
+            isCollapsed = false;
+          }
           lastY = y;
           return;
         }
+
+        const delta = y - lastY;
+        if (Math.abs(delta) < MIN_DELTA) {
+          lastY = y;
+          return;
+        }
+
+        if (!isCollapsed) {
+          // Collapse only if user is clearly going down and past HIDE_AT
+          if (delta > 0 && y >= HIDE_AT) {
+            header.classList.add('is-bottom-collapsed');
+            isCollapsed = true;
+          }
+        } else {
+          // Expand if user is going up with intent OR returns close to top
+          if (y <= SHOW_AT || delta <= -UP_DELTA) {
+            header.classList.remove('is-bottom-collapsed');
+            isCollapsed = false;
+          }
+        }
+
+        lastY = y;
+      });
+    }, { passive: true });
+  }
 
         const goingDown = y > lastY;
         const goingUp = y < lastY - DELTA_SHOW;
