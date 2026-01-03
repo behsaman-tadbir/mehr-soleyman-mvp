@@ -401,3 +401,30 @@ body.modal-open{overflow:hidden}
   font-size: 2rem;
   color: #fff;
 }
+
+/* === Desktop: auto-collapse header bottom on scroll (Step J) === */
+@media (min-width: 769px) {
+  .site-header .header-bottom {
+    overflow: hidden;
+    max-height: 120px;
+    transition:
+      max-height 0.22s ease,
+      padding 0.22s ease,
+      margin 0.22s ease,
+      opacity 0.18s ease,
+      transform 0.22s ease,
+      border-color 0.22s ease;
+    will-change: max-height, transform;
+  }
+
+  .site-header.is-bottom-collapsed .header-bottom {
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    border-top-color: transparent;
+  }
+}

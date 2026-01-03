@@ -380,6 +380,48 @@
     });
   }
 
+  // ---------- UI: Header Bottom Auto Collapse (Desktop) ----------
+  function bindHeaderBottomCollapse() {
+    const header = qs('.site-header');
+    const bottom = qs('.header-bottom');
+    if (!header || !bottom) return;
+    if (markBound(window, 'headerBottomCollapse')) return;
+
+    let lastY = window.scrollY || 0;
+    let ticking = false;
+
+    const THRESHOLD_HIDE = 24;   // px after which we allow hiding
+    const DELTA_SHOW = 6;        // px upward movement to show again
+
+    on(window, 'scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const y = window.scrollY || 0;
+
+        // Always show near top
+        if (y <= 8) {
+          header.classList.remove('is-bottom-collapsed');
+          lastY = y;
+          return;
+        }
+
+        const goingDown = y > lastY;
+        const goingUp = y < lastY - DELTA_SHOW;
+
+        if (goingDown && y >= THRESHOLD_HIDE) {
+          header.classList.add('is-bottom-collapsed');
+        } else if (goingUp) {
+          header.classList.remove('is-bottom-collapsed');
+        }
+
+        lastY = y;
+      });
+    }, { passive: true });
+  }
+
+
   // ---------- UI sync ----------
   function syncAuthUI() {
     const user = getCurrentUser();
@@ -455,6 +497,7 @@
     bindMobileAuth();
     bindMobileCats();
     bindCategoriesDropdown();
+    bindHeaderBottomCollapse();
     syncAuthUI();
   }
 
