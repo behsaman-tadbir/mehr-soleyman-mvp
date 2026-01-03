@@ -492,3 +492,31 @@ body.modal-open{overflow:hidden}
   }
 }
 
+
+/* === Mobile header: show only brand (logo + title) === */
+@media (max-width: 768px){
+  .site-header{display:block;}
+  /* keep header visible even if older rules hide desktop layout blocks */
+  .site-header .header-right,
+  .site-header .header-right--dk2{
+    display:flex !important;
+    align-items:center;
+    justify-content:flex-end;
+    gap:10px;
+  }
+  .site-header .brand-link{display:flex !important; align-items:center; gap:10px;}
+  .site-header .brand-img{width:56px; height:56px;}
+  .site-header .brand-title{font-size:1.55rem; line-height:1; font-weight:900;}
+  /* hide everything else in header on mobile */
+  .site-header .header-search,
+  .site-header .header-search--muted,
+  .site-header .main-nav,
+  .site-header .header-left,
+  .site-header .header-left--dk2,
+  .site-header .auth-trigger,
+  .site-header .user-menu,
+  .site-header .header-bottom{
+    display:none !important;
+  }
+}
+
