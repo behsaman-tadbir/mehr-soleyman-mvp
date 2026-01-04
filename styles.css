@@ -566,8 +566,8 @@ img{
   border:1px solid rgba(15,23,42,.12);
   box-shadow:0 16px 40px rgba(15,23,42,.08);
   backdrop-filter:blur(6px)
-}.
-site-footer .footer-surface::before{
+}
+.site-footer .footer-surface::before{
   content:"";
   position:absolute;
   inset:0;
