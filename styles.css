@@ -728,10 +728,9 @@ site-footer .footer-surface::before{
 /* === Slider: layering + image fit (PATCH) === */
 /* ظرف اسلایدها باید کل ناحیه داخلی post-slider را پر کند */
 .post-slider .post-slides{
-  position: absolute !important;
-  inset: 0 !important;
+  overflow: hidden !important;
+  border-radius: inherit !important;
 }
-
 /* هر اسلاید روی هم قرار می‌گیرد و با opacity جابه‌جا می‌شود */
 /* RTL motion */
 .post-slider .post-slide{
