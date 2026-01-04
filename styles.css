@@ -734,17 +734,25 @@ site-footer .footer-surface::before{
 
 /* هر اسلاید روی هم قرار می‌گیرد و با opacity جابه‌جا می‌شود */
 .post-slider .post-slide{
-  position: absolute !important;
-  inset: 0 !important;
-  opacity: 0 !important;
-  transform: none !important;
-  transition: opacity .45s ease !important;
-  padding: 0 !important; /* هر padding قبلی حذف */
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateX(100%);   /* شروع از راست */
+  transition:
+    transform .6s ease,
+    opacity .6s ease;
 }
 
 .post-slider .post-slide.is-active{
-  opacity: 1 !important;
-  z-index: 1 !important;
+  opacity: 1;
+  transform: translateX(0);
+  z-index: 2;
+}
+/* اسلاید قبلی: به چپ خارج می‌شود */
+.post-slider .post-slide.is-exit-left{
+  opacity: 0;
+  transform: translateX(-100%);
+  z-index: 1;
 }
 
 /* === Slider image: show FULL image (no crop) === */
