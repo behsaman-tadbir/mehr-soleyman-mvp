@@ -669,9 +669,9 @@ site-footer .footer-surface::before{
   position: relative !important;
   padding: 0 !important;
   background: transparent !important;
-  border-radius: 0 !important;
+  border-radius: 18px !important;   /* گوشه‌های قاب */
   box-shadow: none !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   aspect-ratio: 3 / 2 !important;
   min-height: unset !important;
 }
@@ -733,16 +733,14 @@ site-footer .footer-surface::before{
 }
 
 /* هر اسلاید روی هم قرار می‌گیرد و با opacity جابه‌جا می‌شود */
+/* RTL motion */
 .post-slider .post-slide{
   position: absolute;
   inset: 0;
   opacity: 0;
-  transform: translateX(100%);   /* شروع از راست */
-  transition:
-    transform .6s ease,
-    opacity .6s ease;
+  transform: translateX(100%); /* بیرون از راست */
+  transition: transform .6s ease, opacity .6s ease;
 }
-
 .post-slider .post-slide.is-active{
   opacity: 1;
   transform: translateX(0);
