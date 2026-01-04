@@ -536,11 +536,33 @@
   }
 })();
 
-const slides = document.querySelectorAll('.post-slide');
-let current = 0;
+/* === Home Slider (RTL: right → left) === */
+(() => {
+  const slides = document.querySelectorAll('.post-slide');
+  if (!slides.length) return;
 
-setInterval(() => {
-  slides[current].classList.remove('is-active');
-  current = (current + 1) % slides.length;
-  slides[current].classList.add('is-active');
-}, 5000);
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    s.classList.remove('is-active', 'is-exit-left');
+    if (i === 0) s.classList.add('is-active');
+  });
+
+  setInterval(() => {
+    const prev = current;
+    current = (current + 1) % slides.length;
+
+    slides[prev].classList.remove('is-active');
+    slides[prev].classList.add('is-exit-left');
+
+    slides[current].classList.remove('is-exit-left');
+    slides[current].classList.add('is-active');
+
+    /* پاکسازی بعد از انیمیشن */
+    setTimeout(() => {
+      slides[prev].classList.remove('is-exit-left');
+      slides[prev].style.transform = 'translateX(100%)';
+    }, 650);
+
+  }, 5000);
+})();
