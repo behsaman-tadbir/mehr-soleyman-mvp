@@ -84,7 +84,6 @@
 .site-header{background:rgba(255,255,255,.82);backdrop-filter:saturate(140%) blur(10px)}
 
 .header-right--dk2{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap}
-.brand-link--plain{display:flex;align-items:center;gap:10px}
 .brand-link--plain:hover 
 /* Make header title match footer style but slightly more prominent */
 .site-header .brand-title--grad{font-size:1.55rem;line-height:1;font-weight:900;letter-spacing:-.2px;
