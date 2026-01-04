@@ -728,6 +728,8 @@ site-footer .footer-surface::before{
 /* === Slider: layering + image fit (PATCH) === */
 /* ظرف اسلایدها باید کل ناحیه داخلی post-slider را پر کند */
 .post-slider .post-slides{
+  position: absolute !important;
+  inset: 0 !important;
   overflow: hidden !important;
   border-radius: inherit !important;
 }
@@ -737,19 +739,24 @@ site-footer .footer-surface::before{
   position: absolute;
   inset: 0;
   opacity: 0;
-  transform: translateX(100%); /* بیرون از راست */
-  transition: transform .6s ease, opacity .6s ease;
+  transform: translateX(100%);     /* خارج از راست */
+  transition: transform .6s ease !important;
+    /* جلوگیری از چشمک/پرت شدن کلیک */
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
 }
 .post-slider .post-slide.is-active{
-  opacity: 1;
   transform: translateX(0);
-  z-index: 2;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 3;
 }
 /* اسلاید قبلی: به چپ خارج می‌شود */
 .post-slider .post-slide.is-exit-left{
-  opacity: 0;
-  transform: translateX(-100%);
-  z-index: 1;
+  transform: translateX(-100%);    /* خروج به چپ */
+  visibility: visible;             /* تا پایان حرکت دیده شود */
+  z-index: 2;
 }
 
 /* === Slider image: show FULL image (no crop) === */
