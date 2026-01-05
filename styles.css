@@ -723,7 +723,21 @@ img{
   display:grid;
   grid-template-columns:2fr 1fr;
   gap:16px;
-  align-items:stretch}
+  align-items:stretch;
+  grid-template-areas: "slider ads";
+}
+.post-slider{ grid-area: slider; }
+.ads-rubik{ grid-area: ads; }
+
+@media (max-width: 768px){
+  .hero-grid{
+    grid-template-columns:1fr !important;
+    grid-template-areas:
+      "slider"
+      "ads" !important;
+  }
+}
+
 
 .post-slider{
   position: relative;
