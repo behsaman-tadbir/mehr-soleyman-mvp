@@ -1643,7 +1643,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
   /* متن از روی عکس خارج می‌شود */
   .post-slider .post-title{
     position: static;
-    margin: 0;
     border-radius: 0 0 18px 18px;
     background: #fff;
     color: #0f172a;
