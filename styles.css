@@ -1834,10 +1834,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
   align-items:center;
 }
 
-/* RTL alignment: brand on right, auth on left */
-.site-header .header-right--dk2{ justify-content:flex-start; }
-.site-header .header-left--dk2{ justify-content:flex-end; }
-
 .site-header .header-top .container{
   width:100%;
   max-width:none;
