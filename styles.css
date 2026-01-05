@@ -252,7 +252,7 @@ img{
   box-shadow:0 10px 24px rgba(15,23,42,0.08)
 }
 .header-bottom{
-  margin:10px auto 0;
+  margin:0 auto;
   padding-top:0px;
   position:relative;
   z-index:3100
