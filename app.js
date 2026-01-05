@@ -389,7 +389,7 @@
   }
 
   // ---------- UI: Header Bottom Auto Collapse (Desktop) ----------
-function bindHeaderBottomCollapse() {
+//function bindHeaderBottomCollapse() {
   const header = qs('.site-header');
   const bottom = qs('.header-bottom');
   if (!header || !bottom) return;
