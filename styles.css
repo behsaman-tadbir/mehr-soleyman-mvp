@@ -252,7 +252,7 @@ img{
   box-shadow:0 10px 24px rgba(15,23,42,0.08)
 }
 .header-bottom{
-  margin:0 auto;
+  margin:10px auto 0;
   padding-top:0px;
   position:relative;
   z-index:3100
@@ -1415,11 +1415,11 @@ body.modal-open{overflow:hidden}.auth-trigger {
   color: #fff;
 }
 
+/* === Desktop: auto-collapse header bottom on scroll (Step J) === */
 @media (min-width: 769px) {
-
-  .site-header .header-bottom{
+  .site-header .header-bottom {
     overflow: hidden;
-    max-height: 120px; /* ارتفاع حالت باز */
+    max-height: 120px;
     transition:
       max-height 0.22s ease,
       padding 0.22s ease,
@@ -1427,19 +1427,14 @@ body.modal-open{overflow:hidden}.auth-trigger {
     will-change: max-height;
   }
 
-  .site-header.is-bottom-collapsed .header-bottom{
+  .site-header.is-bottom-collapsed .header-bottom {
     max-height: 0;
+    margin-top: 0;
     padding-top: 0;
     padding-bottom: 0;
-    margin-top: 0;
-    border: 0;
-    box-shadow: none;
     pointer-events: none;
   }
-
 }
-
-
 
 /* ===== Step J2: Header-bottom pro collapse + text-only nav + underline hover ===== */
 @media (min-width: 769px) {
@@ -1452,7 +1447,10 @@ body.modal-open{overflow:hidden}.auth-trigger {
   .header-bottom .nav-link {
     background: transparent !important;
     border: 0 !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
+    padding: 10px 10px;
+    line-height: 1.1;
   }
 
   /* Professional hover: underline at bottom edge */
