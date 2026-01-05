@@ -1502,64 +1502,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
 }
 
 
-/* === Mobile header: show only brand (logo + title) === */
-@media (max-width: 768px){
-  .site-header{display:block;}
-  /* keep header visible even if older rules hide desktop layout blocks */
-  .site-header .header-right,
-  .site-header .header-right--dk2{
-    display:flex !important;
-    align-items:center;
-    justify-content:flex-end;
-    gap:10px;
-  }
-  .site-header .brand-link{display:flex !important; align-items:center; gap:10px;}
-  .site-header .brand-img{width:56px; height:56px;}
-  .site-header .brand-title{font-size:1.55rem; line-height:1; font-weight:900;}}
-
-
-
-
-/* ===== Step Q: Mobile header (brand right + search left) + Home responsive alignment ===== */
-
-/* Mobile header: show brand + search only */
-@media (max-width: 768px){.site-header .header-right--dk2{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .site-header .brand-link{
-    flex: 0 0 auto;
-  }
-
-  .site-header .header-search{
-    display: flex !important;
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: none;
-    margin-right: 10px;
-    padding: 0 14px;
-  }
-
-  .site-header .header-search .search-hint{
-    white-space: nowrap;
-    font-size: 0.92rem;
-    color: rgba(51, 65, 85, 0.72);
-  }
-
-  .site-header .header-search input[type="search"]{
-    min-width: 0;
-    width: 100%;
-  }
-}
-
-
-/* =========================
-   Slider Responsive UX (Mobile)
-   ========================= */
-
 
 
 /* Categories: center and balance */
