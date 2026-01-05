@@ -387,9 +387,7 @@ img{
   .bn-item:active{
     transform:scale(0.98)
   }
-  .bn-item.is-active{
-    background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(34,197,94,0.12));border:1px solid rgba(37,99,235,0.18)
-  }
+
   .bn-ico{
     font-size:1.25rem;
     line-height:1
