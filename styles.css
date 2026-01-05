@@ -707,7 +707,7 @@ img{
 .post-slider{
   position: relative;
   padding: 0;
-  
+  width: 100%;
   background: transparent;
   border-radius: 18px;
   box-shadow: none;
