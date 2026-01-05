@@ -7,120 +7,104 @@
   <link rel="stylesheet" href="styles.css"/>
   <script defer src="app.js"></script>
 </head>
-
-<body class="page-products">
-  <header class="site-header">
-    <div class="container">
-      <div class="header-top header-top--dk2">
-        <div class="header-right header-right--dk2">
-          <a class="brand-link brand-link--plain" href="index.html" aria-label="بهسایار">
-            <img class="brand-img brand-img--plain" src="images/behsaman-logo.png" alt="لوگوی بهسایار"/>
-            <span class="brand-title brand-title--grad">بهسایار</span>
-          </a>
-
-          <form class="header-search header-search--muted" role="search" action="products.html" method="get">
-            <label class="sr-only" for="q">جستجو</label>
-            <button class="search-btn" type="submit" aria-label="جستجو">
-              <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <span class="search-hint" aria-hidden="true">جستجو</span>
-            <input id="q" name="q" type="search" aria-label="جستجو" placeholder="نام محصول یا مرکز…"/>
-          </form>
-        </div>
-
-        <div class="header-left header-left--dk2">
-          <div class="auth-area" id="authArea">
-            <button class="auth-trigger" id="headerAuthBtn" type="button" aria-haspopup="dialog" aria-expanded="false">
-              <span class="auth-ico" aria-hidden="true">⎆</span> ورود
-            </button>
-
-            <div class="auth-modal" id="headerAuthPopover" hidden role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-              <div class="auth-modal__dialog" role="document">
-                <div class="auth-modal__head">
-                  <div class="auth-modal__title" id="authModalTitle">ورود به سامانه</div>
-                  <button type="button" class="auth-modal__close" id="headerAuthClose" aria-label="بستن">×</button>
-                </div>
-
-                <form class="auth-form" id="headerInlineLoginForm">
-                  <div class="auth-row">
-                    <label class="auth-label" for="headerLoginUsername">نام کاربری</label>
-                    <input class="auth-input" id="headerLoginUsername" autocomplete="username" inputmode="text"
-                           placeholder="نام کاربری خود را وارد کنید" required/>
-                  </div>
-
-                  <div class="auth-row">
-                    <label class="auth-label" for="headerLoginPassword">رمز عبور</label>
-                    <input class="auth-input" id="headerLoginPassword" type="password" autocomplete="current-password"
-                           placeholder="رمز عبور خود را وارد کنید" required/>
-                  </div>
-
-                  <p class="auth-msg" id="headerLoginMsg" role="status" aria-live="polite"></p>
-                  <button class="btn btn-primary auth-submit" type="submit">ورود</button>
-
-                  <div class="auth-links">
-                    <a href="register.html">ثبت‌نام</a>
-                    <a href="login.html">فراموشی رمز عبور</a>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            <div class="user-menu" id="headerUserMenu" hidden>
-              <button class="user-menu__trigger" id="userMenuTrigger" type="button" aria-expanded="false">
-                <span class="um-avatar"><img id="userMenuAvatar" src="images/placeholder.svg" alt="آواتار"/></span>
-                <span class="um-caret" aria-hidden="true">▾</span>
-              </button>
-
-              <div class="user-menu__dropdown" id="userMenuDropdown" hidden>
-                <div class="um-head">
-                  <div class="um-credit" id="userMenuCredit">اعتبار: —</div>
-                  <div class="um-name" id="userMenuName">نام و نام خانوادگی: —</div>
-                  <div class="um-meta" id="userMenuMeta">سمت: —</div>
-                </div>
-                <a class="user-menu__link" href="#" id="userMenuCart">سبد خرید</a>
-                <a class="user-menu__link" href="#">سوابق خرید</a>
-                <a class="user-menu__link" href="dashboard.html#password" id="userMenuPassword">تغییر کلمه عبور</a>
-                <button class="user-menu__logout" id="userMenuLogout" type="button">خروج</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="header-bottom">
-        <nav class="main-nav main-nav--muted" aria-label="منوی اصلی">
-          <ul>
-            <li class="nav-item has-dropdown">
-              <button class="nav-link nav-link--cats nav-dropdown-toggle" type="button" aria-expanded="false">
-                دسته‌بندی‌ها <span class="chevron" aria-hidden="true">▾</span>
-              </button>
-              <div class="dropdown-panel" hidden aria-label="دسته‌بندی‌ها">
-                <div class="dropdown-grid">
-                  <a href="products.html?cat=pre">پیش‌دبستان و دبستان</a>
-                  <a href="products.html?cat=mid1">متوسطه اول</a>
-                  <a href="products.html?cat=mid2">متوسطه دوم</a>
-                  <a href="products.html?cat=konkur">کنکور و دانشگاه</a>
-                  <a href="products.html?cat=online">کلاس‌های آنلاین</a>
-                  <a href="products.html?cat=lang">کلاس زبان</a>
-                  <a href="products.html?cat=computer">کلاس کامپیوتر</a>
-                  <a href="products.html?cat=skills">کلاس‌های مهارتی</a>
-                </div>
-              </div>
-            </li>
-
-            <li class="nav-item"><a class="nav-link nav-link--muted" href="products.html">محصولات</a></li>
-            <li class="nav-item"><a class="nav-link nav-link--muted" href="news.html">اخبار و مقالات</a></li>
-            <li class="nav-item"><a class="nav-link nav-link--muted" href="contact.html">تماس با ما</a></li>
-            <li class="nav-item"><a class="nav-link nav-link--muted" href="about.html">درباره بهسایار</a></li>
-          </ul>
-        </nav>
-      </div>
+<body class="page-home">
+<header class="site-header">
+<div class="container">
+<!-- ===== Header Top (Desktop) ===== -->
+<div class="header-top header-top--dk2">
+<div class="header-right header-right--dk2">
+<a aria-label="بهسایار" class="brand-link brand-link--plain" href="index.html">
+<img alt="لوگوی بهسایار" class="brand-img brand-img--plain" src="images/behsaman-logo.png"/>
+<span class="brand-title brand-title--grad">بهسایار</span>
+</a>
+<form class="header-search header-search--muted" role="search">
+  <label class="sr-only" for="q">جستجو</label>
+  <button aria-label="جستجو" class="search-btn" type="submit">
+    <svg aria-hidden="true" class="search-ico" viewBox="0 0 24 24" focusable="false">
+      <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <span class="search-hint" aria-hidden="true">جستجو</span>
+  <input aria-label="جستجو" id="q" name="q" type="search"/>
+</form>
+</div>
+<div class="header-left header-left--dk2">
+<div class="auth-area" id="authArea">
+<!-- Logged out -->
+<button aria-expanded="false" aria-haspopup="dialog" class="auth-trigger" id="headerAuthBtn" type="button"><span aria-hidden="true" class="auth-ico">⎆</span> ورود</button>
+<div class="auth-modal" hidden="" id="headerAuthPopover" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+  <div class="auth-modal__dialog" role="document">
+    <div class="auth-modal__head">
+      <div class="auth-modal__title" id="authModalTitle">ورود به سامانه</div>
+      <button type="button" class="auth-modal__close" id="headerAuthClose" aria-label="بستن">×</button>
     </div>
-  </header>
+<form class="auth-form" id="headerInlineLoginForm">
+<div class="auth-row">
+<label class="auth-label" for="headerLoginUsername">نام کاربری</label>
+<input autocomplete="username" class="auth-input" id="headerLoginUsername" inputmode="text" placeholder="نام کاربری خود را وارد کنید" required=""/>
+</div>
+<div class="auth-row">
+<label class="auth-label" for="headerLoginPassword">رمز عبور</label>
+<input autocomplete="current-password" class="auth-input" id="headerLoginPassword" placeholder="رمز عبور خود را وارد کنید" required="" type="password"/>
+</div>
+<p aria-live="polite" class="auth-msg" id="headerLoginMsg" role="status"></p>
+<button class="btn btn-primary auth-submit" type="submit">ورود</button>
+<div class="auth-links">
+<a href="register.html">ثبت‌نام</a>
+<a href="login.html">فراموشی رمز عبور</a>
+</div>
+</form>
+</div>
+</div>
+<!-- Logged in -->
+<div class="user-menu" hidden="" id="headerUserMenu">
+<button aria-expanded="false" class="user-menu__trigger" id="userMenuTrigger" type="button">
+<span class="um-avatar"><img alt="آواتار" id="userMenuAvatar" src="images/placeholder.svg"/></span>
+<span aria-hidden="true" class="um-caret">▾</span>
+</button>
+<div class="user-menu__dropdown" hidden="" id="userMenuDropdown">
+<div class="um-head">
+<div class="um-credit" id="userMenuCredit">اعتبار: —</div>
+<div class="um-name" id="userMenuName">نام و نام خانوادگی: —</div>
+<div class="um-meta" id="userMenuMeta">سمت: —</div>
+</div>
+<a class="user-menu__link" href="#" id="userMenuCart">سبد خرید</a>
+<a class="user-menu__link" href="#" id="userMenuCart">سوابق خرید</a>
+<a class="user-menu__link" href="dashboard.html#password" id="userMenuPassword">تغییر کلمه عبور</a>
+<button class="user-menu__logout" id="userMenuLogout" type="button">خروج</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ===== Header Bottom / Main Nav ===== -->
+<div class="header-bottom">
+<nav aria-label="منوی اصلی" class="main-nav main-nav--muted">
+<ul>
+<li class="nav-item has-dropdown">
+<button aria-expanded="false" class="nav-link nav-link--cats nav-dropdown-toggle" type="button">
+              دسته‌بندی‌ها <span aria-hidden="true" class="chevron">▾</span>
+</button>
+<div aria-label="دسته‌بندی‌ها" class="dropdown-panel" hidden="">
+<div class="dropdown-grid">
+<a href="services.html?cat=pre">پیش‌دبستان و دبستان</a>
+<a href="services.html?cat=mid1">متوسطه اول</a>
+<a href="services.html?cat=mid2">متوسطه دوم</a>
+<a href="services.html?cat=konkur">کنکور و دانشگاه</a>
+<a href="services.html?cat=online">کلاس‌های آنلاین</a>
+<a href="services.html?cat=lang">کلاس زبان</a><a href="services.html?cat=computer">کلاس کامپیوتر</a><a href="services.html?cat=skills">کلاس‌های مهارتی</a></div>
+</div>
+</li>
+<li class="nav-item"><a class="nav-link nav-link--muted" href="services.html">محصولات</a></li>
+<li class="nav-item"><a class="nav-link nav-link--muted" href="news.html">اخبار و مقالات</a></li>
+<li class="nav-item"><a class="nav-link nav-link--muted" href="contact.html">تماس با ما</a></li>
+<li class="nav-item"><a class="nav-link nav-link--muted" href="about.html">درباره بهسایار</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</header>
 
   <main class="home-section">
     <div class="container">
