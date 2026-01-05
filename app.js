@@ -390,59 +390,74 @@
 
  
  // ---------- UI: Header Bottom Auto Collapse (Desktop) ----------
-function bindMenuOnlyAtTop() {
-  const header = document.querySelector('.site-header');
-  const bottom = document.querySelector('.header-bottom');
-  if (!header || !bottom) return;
+  function bindHeaderBottomCollapse() {
+    const header = qs('.site-header');
+    const bottom = qs('.header-bottom');
+    if (!header || !bottom) return;
+    if (markBound(window, 'headerBottomCollapse')) return;
 
-  // جلوگیری از دوباره bind شدن
-  if (window.__menuOnlyAtTopBound) return;
-  window.__menuOnlyAtTopBound = true;
+    // Hysteresis-based collapse to avoid flicker ("پرپر زدن")
+    let lastY = window.scrollY || 0;
+    let ticking = false;
+    let isCollapsed = header.classList.contains('is-bottom-collapsed');
 
-  const HIDE_AFTER = 40;  // وقتی از این مقدار پایین‌تر رفتی، منو مخفی
-  const TOP_SHOW  = 12;  // فقط وقتی نزدیک بالای صفحه شدی، منو برگردد
+    const HIDE_AT = 96;      // collapse after user has scrolled a bit
+    const SHOW_AT = 48;      // expand when near top
+    const MIN_DELTA = 2;     // ignore micro scroll noise
+    const UP_DELTA = 18;     // user intent to go up
 
-  let ticking = false;
-  let hidden = false;
+    on(window, 'scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
 
-  const apply = () => {
-    // اگر dropdown باز است، منو را مخفی نکن
-    if (header.classList.contains('is-nav-dropdown-open')) {
-      header.classList.remove('is-menu-away-top');
-      hidden = false;
-      return;
-    }
+        const y = window.scrollY || 0;
 
-    const y = window.scrollY || 0;
+        // Dropdown open should pin header-bottom visible
+        if (header.classList.contains('is-nav-dropdown-open')) {
+          if (isCollapsed) {
+            header.classList.remove('is-bottom-collapsed');
+            isCollapsed = false;
+          }
+          lastY = y;
+          return;
+        }
 
-    // فقط وقتی نزدیک top برگشتی، منو برگردد
-    if (y <= TOP_SHOW) {
-      if (hidden) {
-        header.classList.remove('is-menu-away-top');
-        hidden = false;
-      }
-      return;
-    }
+        // Always show near very top
+        if (y <= 8) {
+          if (isCollapsed) {
+            header.classList.remove('is-bottom-collapsed');
+            isCollapsed = false;
+          }
+          lastY = y;
+          return;
+        }
 
-    // وقتی از top دور شدی، مخفی بماند
-    if (!hidden && y >= HIDE_AFTER) {
-      header.classList.add('is-menu-away-top');
-      hidden = true;
-    }
-  };
+        const delta = y - lastY;
+        if (Math.abs(delta) < MIN_DELTA) {
+          lastY = y;
+          return;
+        }
 
-  window.addEventListener('scroll', () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      ticking = false;
-      apply();
-    });
-  }, { passive: true });
+        if (!isCollapsed) {
+          // Collapse only if user is clearly going down and past HIDE_AT
+          if (delta > 0 && y >= HIDE_AT) {
+            header.classList.add('is-bottom-collapsed');
+            isCollapsed = true;
+          }
+        } else {
+          // Expand if user is going up with intent OR returns close to top
+          if (y <= SHOW_AT || delta <= -UP_DELTA) {
+            header.classList.remove('is-bottom-collapsed');
+            isCollapsed = false;
+          }
+        }
 
-  // اجرای اولیه
-  apply();
-}
+        lastY = y;
+      });
+    }, { passive: true });
+  }
 
 
   // ---------- UI sync ----------
