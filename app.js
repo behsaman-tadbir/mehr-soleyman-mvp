@@ -389,56 +389,63 @@
   }
 
   // ---------- UI: Header Bottom Auto Collapse (Desktop) ----------
-//function bindHeaderBottomCollapse() {
-  const header = qs('.site-header');
-  const bottom = qs('.header-bottom');
+function bindHeaderBottomCollapse() {
+  const header = document.querySelector('.site-header');
+  const bottom = document.querySelector('.header-bottom');
   if (!header || !bottom) return;
-  if (markBound(window, 'headerBottomCollapse')) return;
 
-  let lastScrollY = window.scrollY;
-  let isCollapsed = false;
+  let lastY = window.scrollY || 0;
+  let collapsed = header.classList.contains('is-bottom-collapsed');
+  let ticking = false;
 
-  const COLLAPSE_AFTER = 90; // فقط بعد از این مقدار اجازه collapse داریم
+  const COLLAPSE_AFTER = 90; // بعد از این مقدار اجازه جمع شدن
+  const TOP_UNLOCK = 20;     // نزدیک بالا همیشه باز
 
-  on(window, 'scroll', () => {
-    const currentY = window.scrollY;
-    const goingDown = currentY > lastScrollY;
-    const goingUp = currentY < lastScrollY;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
 
-    // اگر منوی کشویی باز است، هدر همیشه باز بماند
-    if (header.classList.contains('is-nav-dropdown-open')) {
-      if (isCollapsed) {
-        header.classList.remove('is-bottom-collapsed');
-        isCollapsed = false;
+    requestAnimationFrame(() => {
+      ticking = false;
+
+      const y = window.scrollY || 0;
+
+      // اگر dropdown بازه، هیچ collapse نکن
+      if (header.classList.contains('is-nav-dropdown-open')) {
+        if (collapsed) {
+          header.classList.remove('is-bottom-collapsed');
+          collapsed = false;
+        }
+        lastY = y;
+        return;
       }
-      lastScrollY = currentY;
-      return;
-    }
 
-    // نزدیک بالای صفحه → همیشه باز
-    if (currentY < 20) {
-      if (isCollapsed) {
-        header.classList.remove('is-bottom-collapsed');
-        isCollapsed = false;
+      // نزدیک بالای صفحه همیشه باز
+      if (y <= TOP_UNLOCK) {
+        if (collapsed) {
+          header.classList.remove('is-bottom-collapsed');
+          collapsed = false;
+        }
+        lastY = y;
+        return;
       }
-      lastScrollY = currentY;
-      return;
-    }
 
-    // فقط یک تصمیم واضح
-    if (goingDown && !isCollapsed && currentY > COLLAPSE_AFTER) {
-      header.classList.add('is-bottom-collapsed');
-      isCollapsed = true;
-    }
+      const goingDown = y > lastY;
+      const goingUp = y < lastY;
 
-    if (goingUp && isCollapsed) {
-      header.classList.remove('is-bottom-collapsed');
-      isCollapsed = false;
-    }
+      if (goingDown && !collapsed && y >= COLLAPSE_AFTER) {
+        header.classList.add('is-bottom-collapsed');
+        collapsed = true;
+      } else if (goingUp && collapsed) {
+        header.classList.remove('is-bottom-collapsed');
+        collapsed = false;
+      }
 
-    lastScrollY = currentY;
+      lastY = y;
+    });
   }, { passive: true });
 }
+
 
 
   // ---------- UI sync ----------
