@@ -1548,7 +1548,7 @@ body.modal-open{overflow:hidden}.auth-trigger {
 
   /* اسلایدر دیگر نسبت 3:2 قفل نباشد، طبیعی شود */
   .post-slider{
-    aspect-ratio: auto;
+    min-height: 340px;
   }
 
   /* اسلاید به کارت عمودی تبدیل می‌شود */
