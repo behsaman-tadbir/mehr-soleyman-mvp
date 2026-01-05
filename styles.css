@@ -1440,38 +1440,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
   }
 }
 
-/* ===== Step J2: Header-bottom pro collapse + text-only nav + underline hover ===== */
-@media (min-width: 769px) {
-  .header-bottom {
-    margin: 10px auto 0;
-    padding-top: 0px;
-    padding-bottom: 0px;
-  }
-/* Make header-bottom nav items text-like (no boxes), but still tappable */
-  .header-bottom .nav-link {
-    background: transparent !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 10px 10px;
-    line-height: 1.1;
-  }
-
-  /* Professional hover: underline at bottom edge */
-  .header-bottom .nav-link:hover,
-  .header-bottom .nav-link:focus-visible {
-    box-shadow: inset 0 -2px 0 rgba(14, 165, 233, 0.85) !important;
-    outline: none;
-  }
-
-  /* Cats emphasis: bigger + bolder + slightly darker + same style family */
-  .header-bottom .nav-link--cats,
-  .header-bottom .nav-dropdown-toggle.nav-link--cats {
-    font-weight: 800;
-    font-size: 1.05rem;
-    color: rgba(15, 23, 42, 0.86);
-  }
-
   /* Dropdown panel items: one per line, clean */
   .dropdown-panel .dropdown-grid {
     display: flex !important;
