@@ -1667,3 +1667,16 @@ body.modal-open{overflow:hidden}.auth-trigger {
     bottom: 10px;
   }
 }
+@media (min-width: 769px){
+  .post-slider .post-title{
+    white-space: nowrap;       /* همیشه یک خط */
+    overflow: hidden;          /* اگر خیلی طولانی شد */
+    text-overflow: ellipsis;   /* سه نقطه حرفه‌ای */
+
+    font-weight: 900;
+    line-height: 1.25;
+
+    /* 👇 قلب ماجرا */
+    font-size: clamp(1.2rem, 2.6vw, 2.2rem);
+  }
+}
