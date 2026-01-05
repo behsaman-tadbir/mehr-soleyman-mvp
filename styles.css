@@ -695,7 +695,6 @@ img{
   grid-template-areas: "slider ads";
 }
 .post-slider{ grid-area: slider; }
-.ads-rubik{ grid-area: ads; }
 
 @media (max-width: 768px){
   .hero-grid{
