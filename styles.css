@@ -1415,24 +1415,28 @@ body.modal-open{overflow:hidden}.auth-trigger {
   color: #fff;
 }
 
-/* === Desktop: auto-collapse header bottom on scroll (Step J) === */
+/* === Desktop: real slide-collapse for header-bottom (NO fade) === */
 @media (min-width: 769px) {
-  .site-header .header-bottom {
+  .site-header .header-bottom{
     overflow: hidden;
-    max-height: 120px;
-    transition:
-      max-height 0.22s ease,
-      padding 0.22s ease,
-      margin 0.22s ease;
+    max-height: 160px; /* اگر منوی تو بلندتره 200 بذار */
+    transition: max-height 0.22s ease, margin 0.22s ease, padding 0.22s ease;
     will-change: max-height;
   }
 
-  .site-header.is-bottom-collapsed .header-bottom {
+  .site-header.is-bottom-collapsed .header-bottom{
     max-height: 0;
-    margin-top: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
     pointer-events: none;
+  }
+
+  /* وقتی dropdown باز است، collapse غیرفعال */
+  .site-header.is-nav-dropdown-open .header-bottom{
+    max-height: 420px;
+    overflow: visible;
+    pointer-events: auto;
   }
 }
 
