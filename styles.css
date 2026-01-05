@@ -871,10 +871,11 @@ img{
   );
 }
 
+/* Desktop / default (همون حالت شبکه‌ای) */
 .category-circles{
   display:grid;
-  grid-template-columns:repeat(9,1fr);
-  gap:1px
+  grid-template-columns:repeat(9, minmax(0, 1fr));
+  gap:14px;
 }
 .circle-card:hover{
   transform:translateY(-3px)
@@ -1557,12 +1558,32 @@ body.modal-open{overflow:hidden}.auth-trigger {
 
 
 
-/* Categories: center and balance */
-}
+/* Mobile: تبدیل به اسکرول افقی */
 @media (max-width: 768px){
   .category-circles{
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    display:flex !important;
+    gap:12px !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    padding:6px 2px 12px;
+    margin-inline:-6px;   /* کمی فضای نفس برای اسکرول */
+    padding-inline:6px;
+  }
+
+  .category-circles .cat-circle{
+    flex:0 0 auto !important;
+    width:120px;          /* اندازه آیتم‌ها در موبایل */
+    scroll-snap-align:start;
+  }
+
+  .category-circles::-webkit-scrollbar{
+    height:8px;
+  }
+  .category-circles::-webkit-scrollbar-thumb{
+    background:rgba(15,23,42,0.18);
+    border-radius:999px;
   }
 }
 
