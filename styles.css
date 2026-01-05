@@ -924,12 +924,7 @@ img{
 .rail--new{
   background:linear-gradient(135deg,#ffffff,#f0f9ff)
 }
-.rail{
-  display:grid;
-  grid-template-columns:320px 1fr;
-  gap:16px;
-  align-items:stretch
-}
+
 .rail-head{
   border-radius:16px;
   padding:16px;
