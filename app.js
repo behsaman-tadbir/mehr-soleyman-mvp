@@ -160,17 +160,11 @@ function ensureSeedUsers() {
         changed = true;
       } else {
         // keep existing but ensure required fields exist
-         const merged = { ...u, ...users[u.id] };
-         
-         // ✅ نقش‌ها باید همیشه مطابق DEMO_USERS باشد (برای جلوگیری از نمایش صفحه مدیر به دانش‌آموز/پرسنل)
-         merged.role = u.role;
-         merged.roleLabel = u.roleLabel;
-         
-         // رمز عبور اگر کاربر قبلاً عوض کرده باشد حفظ شود
-         merged.password = users[u.id].password || u.password;
-         
-         users[u.id] = merged;
-         changed = true;
+        const merged = { ...u, ...users[u.id] };
+        // password should remain user-entered? for demo keep seed default
+        merged.password = users[u.id].password || u.password;
+        users[u.id] = merged;
+        changed = true;
       }
     }
     if (changed) LS.set(KEYS.USERS, users);
@@ -537,118 +531,100 @@ function ensureSeedUsers() {
   }
 
 
-// ---------- UI sync ----------
-function syncAuthUI() {
-  const user = getCurrentUser();
+  // ---------- UI sync ----------
+  function syncAuthUI() {
+    const user = getCurrentUser();
 
-  const loginBtn = qs('#headerAuthBtn');
-  const userMenu = qs('#headerUserMenu');
+    const authArea = qs('#authArea');
+    const loginBtn = qs('#headerAuthBtn');
+    const userMenu = qs('#headerUserMenu');
 
-  const mobileLoginForm = qs('#mobileLoginForm');
-  // Mobile account actions live inside the bottom sheet
-  const mobileUserMenu = qs('#mobileAccountActions');
+    const mobileLoginForm = qs('#mobileLoginForm');
+    // Mobile account actions live inside the bottom sheet
+    const mobileUserMenu = qs('#mobileAccountActions');
 
-  const bnText = qs('#bnAuthText');
+    const bnText = qs('#bnAuthText');
 
-  // ✅ Admin button next to cart (must exist in HTML)
-  const headerAdminBtn = qs('#headerAdminBtn');
-  const isAdmin = !!user && String(user.id) === '1003'; // MVP hard-safe
+    if (user) {
+      document.documentElement.classList.add('is-auth');
+      // Desktop
+      if (loginBtn) loginBtn.hidden = true;
+      if (userMenu) userMenu.hidden = false;
 
-  if (user) {
-    document.documentElement.classList.add('is-auth');
+      // Desktop menu fields
+      const avatar = qs('#userMenuAvatar');
+      if (avatar) avatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
+      const credit = qs('#userMenuCredit');
+      if (credit) credit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
+      const name = qs('#userMenuName');
+      if (name) name.textContent = user.fullName;
+      const meta = qs('#userMenuMeta');
+      if (meta) meta.textContent = user.roleLabel;
 
-    // Desktop
-    if (loginBtn) loginBtn.hidden = true;
-    if (userMenu) userMenu.hidden = false;
+      const ident = qs('#userMenuIdentity');
+      if (ident) ident.textContent = `کد: ${user.id} • کدملی: ${user.nationalId || '—'}`;
 
-    // ✅ show/hide admin button in header
-    if (headerAdminBtn) headerAdminBtn.hidden = !isAdmin;
-
-    // Desktop menu fields
-    const avatar = qs('#userMenuAvatar');
-    if (avatar) avatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
-
-    const credit = qs('#userMenuCredit');
-    if (credit) credit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
-
-    const name = qs('#userMenuName');
-    if (name) name.textContent = user.fullName;
-
-    const meta = qs('#userMenuMeta');
-    if (meta) meta.textContent = user.roleLabel;
-
-    const ident = qs('#userMenuIdentity');
-    if (ident) ident.textContent = `کد: ${user.id} • کدملی: ${user.nationalId || '—'}`;
-
-    const parent = qs('#userMenuParent');
-    if (parent) {
-      if (user.role === 'student' && user.parentId) {
-        const users = LS.get(KEYS.USERS, {});
-        const p = users[user.parentId];
-        const pName = p?.fullName || '—';
-        const pPos = p?.positionTitle ? `(${p.positionTitle})` : '';
-        parent.textContent = `فرزندِ: ${pName} ${pPos}`;
-        parent.hidden = false;
-      } else {
-        parent.hidden = true;
+      const parent = qs('#userMenuParent');
+      if (parent) {
+        if (user.role === 'student' && user.parentId) {
+          const users = LS.get(KEYS.USERS, {});
+          const p = users[user.parentId];
+          const pName = p?.fullName || '—';
+          const pPos = p?.positionTitle ? `(${p.positionTitle})` : '';
+          parent.textContent = `فرزندِ: ${pName} ${pPos}`;
+          parent.hidden = false;
+        } else {
+          parent.hidden = true;
+        }
       }
+
+      // Toggle menu options
+      const adminLink = qs('#userMenuAdminPage');
+      const ordersLink = qs('#userMenuOrders');
+      if (adminLink) adminLink.hidden = user.role !== 'admin';
+      if (ordersLink) ordersLink.hidden = user.role === 'admin';
+
+      if (ordersLink && user.role !== 'admin') {
+        const cnt = ordersForUser(user.id).length;
+        ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
+      }
+
+
+      // Mobile
+      if (mobileLoginForm) mobileLoginForm.hidden = true;
+      if (mobileUserMenu) mobileUserMenu.hidden = false;
+
+      const mAvatar = qs('#mobileUserAvatar');
+      if (mAvatar) mAvatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
+      const mCredit = qs('#mobileUserCredit');
+      if (mCredit) mCredit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
+      const mName = qs('#mobileUserName');
+      if (mName) mName.textContent = user.fullName;
+      const mMeta = qs('#mobileUserMeta');
+      if (mMeta) mMeta.textContent = user.roleLabel;
+
+      if (bnText) bnText.textContent = 'حساب';
+
+    } else {
+      document.documentElement.classList.remove('is-auth');
+      // Desktop
+      if (loginBtn) loginBtn.hidden = false;
+      if (userMenu) userMenu.hidden = true;
+
+      // Mobile
+      if (mobileLoginForm) mobileLoginForm.hidden = false;
+      if (mobileUserMenu) mobileUserMenu.hidden = true;
+
+      if (bnText) bnText.textContent = 'ورود';
     }
 
-    // ✅ Orders link: admins shouldn't see orders link (based on your logic)
-    const ordersLinks = qsa('#userMenuOrders');
-    ordersLinks.forEach((el) => { el.hidden = isAdmin; });
-
-    const orderCountTargets = ordersLinks.filter((el) => !el.hidden);
-    if (orderCountTargets.length && !isAdmin) {
-      const cnt = ordersForUser(user.id).length;
-      orderCountTargets.forEach((el) => {
-        el.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
-      });
-    }
-
-    // Mobile
-    if (mobileLoginForm) mobileLoginForm.hidden = true;
-    if (mobileUserMenu) mobileUserMenu.hidden = false;
-
-    const mAvatar = qs('#mobileUserAvatar');
-    if (mAvatar) mAvatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
-
-    const mCredit = qs('#mobileUserCredit');
-    if (mCredit) mCredit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
-
-    const mName = qs('#mobileUserName');
-    if (mName) mName.textContent = user.fullName;
-
-    const mMeta = qs('#mobileUserMeta');
-    if (mMeta) mMeta.textContent = user.roleLabel;
-
-    if (bnText) bnText.textContent = 'حساب';
-
-  } else {
-    document.documentElement.classList.remove('is-auth');
-
-    // Desktop
-    if (loginBtn) loginBtn.hidden = false;
-    if (userMenu) userMenu.hidden = true;
-
-    // ✅ admin button must be hidden when logged out
-    if (headerAdminBtn) headerAdminBtn.hidden = true;
-
-    // Mobile
-    if (mobileLoginForm) mobileLoginForm.hidden = false;
-    if (mobileUserMenu) mobileUserMenu.hidden = true;
-
-    if (bnText) bnText.textContent = 'ورود';
+    // avatar fallback if missing images
+    qsa('img').forEach((img) => {
+      if (!img.getAttribute('onerror')) {
+        img.onerror = () => { img.src = 'images/placeholder.svg'; };
+      }
+    });
   }
-
-  // avatar fallback if missing images
-  qsa('img').forEach((img) => {
-    if (!img.getAttribute('onerror')) {
-      img.onerror = () => { img.src = 'images/placeholder.svg'; };
-    }
-  });
-}
-
 
   
   // ---------- Cart (MVP) ----------
@@ -760,7 +736,6 @@ function syncAuthUI() {
         <div class="cart-item" data-pid="${it.productId}">
           <div class="cart-item__meta">
             <div class="cart-item__title">${title}</div>
-            ${it.meta ? `<div class="cart-item__meta2">${it.meta}</div>` : ``}
             <div class="cart-item__price">${price} تومان</div>
           </div>
           <div class="cart-item__qty">
@@ -826,27 +801,14 @@ function syncAuthUI() {
 
       const pid = btn.getAttribute('data-product-id') || btn.getAttribute('data-id') || '';
       const card = btn.closest('.product-card');
-
-      // Support both card templates (index & products)
-      const titleEl = card ? (card.querySelector('.product-title') || card.querySelector('.product-name')) : null;
-
-      // Prefer numeric dataset price when available
-      const priceFromData = card ? Number(card.getAttribute('data-price') || 0) : 0;
-      const priceEl = card
-        ? (card.querySelector('.product-price .price-now') || card.querySelector('.product-prices .price-new'))
-        : null;
+      const titleEl = card ? card.querySelector('.product-title') : null;
+      const priceEl = card ? card.querySelector('.product-price .price-now') : null;
 
       const title = titleEl ? titleEl.textContent.trim() : 'محصول';
-      const unitPrice = priceFromData > 0
-        ? priceFromData
-        : (priceEl ? parsePriceIRR(priceEl.textContent) : 0);
-
-      // Optional short meta for cart display
-      const metaEl = card ? (card.querySelector('.product-meta') || card.querySelector('.product-sub')) : null;
-      const meta = metaEl ? metaEl.textContent.trim() : '';
+      const unitPrice = priceEl ? parsePriceIRR(priceEl.textContent) : 0;
 
       if (!pid) return;
-      upsertCartItem({ productId: pid, title, unitPrice, meta, qty: 1 });
+      upsertCartItem({ productId: pid, title, unitPrice, qty: 1 });
 
       // micro feedback
       btn.classList.add('is-added');
