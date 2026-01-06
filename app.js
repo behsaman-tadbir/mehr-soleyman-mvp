@@ -584,16 +584,20 @@ function ensureSeedUsers() {
         }
       }
 
-      // Toggle menu options
-      const adminLink = qs('#userMenuAdminPage');
-      const ordersLink = qs('#userMenuOrders');
-      if (adminLink) adminLink.hidden = user.role !== 'admin';
-      if (ordersLink) ordersLink.hidden = user.role === 'admin';
+// Toggle menu options (SAFE: handles duplicate IDs by hiding ALL matches)
+const adminLinks = qsa('#userMenuAdminPage');
+const ordersLinks = qsa('#userMenuOrders');
 
-      if (ordersLink && user.role !== 'admin') {
-        const cnt = ordersForUser(user.id).length;
-        ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
-      }
+adminLinks.forEach((el) => { el.hidden = user.role !== 'admin'; });
+ordersLinks.forEach((el) => { el.hidden = user.role === 'admin'; });
+
+const orderCountTargets = ordersLinks.filter((el) => !el.hidden);
+if (orderCountTargets.length && user.role !== 'admin') {
+  const cnt = ordersForUser(user.id).length;
+  orderCountTargets.forEach((el) => {
+    el.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
+  });
+}
 
 
       // Mobile
