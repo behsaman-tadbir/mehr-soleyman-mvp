@@ -801,14 +801,27 @@ function ensureSeedUsers() {
 
       const pid = btn.getAttribute('data-product-id') || btn.getAttribute('data-id') || '';
       const card = btn.closest('.product-card');
-      const titleEl = card ? card.querySelector('.product-title') : null;
-      const priceEl = card ? card.querySelector('.product-price .price-now') : null;
-
+      
+      const titleEl = card ? (card.querySelector('.product-title') || card.querySelector('.product-name')) : null;
+      
+      // قیمت را از چند منبع بخوان: (۱) data-price (۲) price-now (۳) price-new
+      const priceFromData = card ? Number(card.getAttribute('data-price') || 0) : 0;
+      const priceEl =
+        card
+          ? (card.querySelector('.product-price .price-now') || card.querySelector('.product-prices .price-new'))
+          : null;
+      
       const title = titleEl ? titleEl.textContent.trim() : 'محصول';
-      const unitPrice = priceEl ? parsePriceIRR(priceEl.textContent) : 0;
-
+      const unitPrice = priceFromData > 0
+        ? priceFromData
+        : (priceEl ? parsePriceIRR(priceEl.textContent) : 0);
+      
+      // مشخصات کوتاه (اختیاری ولی مفید برای “مشخصات” در سبد)
+      const metaEl = card ? (card.querySelector('.product-meta') || card.querySelector('.product-sub')) : null;
+      const meta = metaEl ? metaEl.textContent.trim() : '';
+      
       if (!pid) return;
-      upsertCartItem({ productId: pid, title, unitPrice, qty: 1 });
+      upsertCartItem({ productId: pid, title, unitPrice, meta, qty: 1 });
 
       // micro feedback
       btn.classList.add('is-added');
