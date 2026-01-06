@@ -160,11 +160,17 @@ function ensureSeedUsers() {
         changed = true;
       } else {
         // keep existing but ensure required fields exist
-        const merged = { ...u, ...users[u.id] };
-        // password should remain user-entered? for demo keep seed default
-        merged.password = users[u.id].password || u.password;
-        users[u.id] = merged;
-        changed = true;
+         const merged = { ...u, ...users[u.id] };
+         
+         // ✅ نقش‌ها باید همیشه مطابق DEMO_USERS باشد (برای جلوگیری از نمایش صفحه مدیر به دانش‌آموز/پرسنل)
+         merged.role = u.role;
+         merged.roleLabel = u.roleLabel;
+         
+         // رمز عبور اگر کاربر قبلاً عوض کرده باشد حفظ شود
+         merged.password = users[u.id].password || u.password;
+         
+         users[u.id] = merged;
+         changed = true;
       }
     }
     if (changed) LS.set(KEYS.USERS, users);
