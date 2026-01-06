@@ -1239,7 +1239,7 @@ img{
 /* === Products page responsive grid (FIX) === */
 @media (max-width: 768px){
   #productsGrid{
-    grid-template-columns: 1fr;
+    grid-template-columns: 3fr;
     gap: 12px;
   }
 
@@ -1249,7 +1249,18 @@ img{
     max-width: 100%;
   }
 }
+@media (min-width: 769px){
+  #productsGrid{
+    grid-template-columns: 2fr;
+    gap: 12px;
+  }
 
+  #productsCategory,
+  #productsSort{
+    flex: 1 1 160px;
+    max-width: 100%;
+  }
+}
 /* Tablet: 2 columns */
 @media (min-width: 769px) and (max-width: 1024px){
   #productsGrid{
