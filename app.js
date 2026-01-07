@@ -160,25 +160,73 @@ const formatIR = (n) => {
     }
   }
 
-function ensureSeedUsers() {
+   function ensureSeedUsers() {
     const users = LS.get(KEYS.USERS, {});
     let changed = false;
 
     for (const u of DEMO_USERS) {
-      if (!users[u.id]) {
+      const ex = users[u.id];
+
+      if (!ex) {
         users[u.id] = u;
         changed = true;
-      } else {
-        // keep existing but ensure required fields exist
-        const merged = { ...u, ...users[u.id] };
-        // password should remain user-entered? for demo keep seed default
-        merged.password = users[u.id].password || u.password;
-        users[u.id] = merged;
-        changed = true;
+        continue;
       }
+
+      // Merge: keep user-editable fields (credit/password/avatar/etc) but ALWAYS lock role info for demo users
+      const merged = { ...ex, ...u };
+
+      // keep user-entered password/credit if present
+      merged.password = (ex.password != null && String(ex.password).trim() !== '') ? ex.password : u.password;
+      merged.credit = Number.isFinite(Number(ex.credit)) ? Number(ex.credit) : u.credit;
+
+      // keep custom avatar/name/contact fields if they exist
+      merged.avatar = ex.avatar || u.avatar;
+      merged.fullName = ex.fullName || u.fullName;
+      merged.nationalId = ex.nationalId || u.nationalId;
+      merged.fatherName = ex.fatherName || u.fatherName;
+      merged.mobile = ex.mobile || u.mobile;
+      merged.address = ex.address || u.address;
+      merged.positionTitle = ex.positionTitle || u.positionTitle;
+
+      // IMPORTANT: lock role & roleLabel to the seeded demo definitions
+      merged.role = u.role;
+      merged.roleLabel = u.roleLabel;
+      merged.parentId = u.parentId;
+      merged.children = u.children;
+
+      users[u.id] = merged;
+      changed = true;
     }
+
     if (changed) LS.set(KEYS.USERS, users);
   }
+   
+       // Merge but NEVER allow stored role/roleLabel to override seed role
+       const prev = users[u.id] || {};
+       const merged = { ...u, ...prev };
+   
+       // ✅ lock role from seed (prevents admin leak)
+       merged.role = u.role;
+       merged.roleLabel = u.roleLabel;
+   
+       // keep password if user changed it (demo)
+       merged.password = prev.password || u.password;
+   
+       // keep credit if it was changed by admin
+       merged.credit = Number.isFinite(Number(prev.credit)) ? Number(prev.credit) : Number(u.credit || 0);
+   
+       // keep relationships from seed (stable)
+       if (u.parentId !== undefined) merged.parentId = u.parentId;
+       if (u.children !== undefined) merged.children = u.children;
+   
+       users[u.id] = merged;
+       changed = true;
+     }
+   
+     if (changed) LS.set(KEYS.USERS, users);
+   }
+
 
   function getSession() {
     return LS.get(KEYS.SESSION, null);
@@ -198,6 +246,51 @@ function ensureSeedUsers() {
     const users = LS.get(KEYS.USERS, {});
     return users[sess.userId] || null;
   }
+
+
+  function isAdminUser(user) {
+    return !!(user && String(user.id) === '1003');
+  }
+
+  function buildInstallmentSchedule(payable, plan) {
+    if (!plan || !Number.isFinite(Number(plan.installments))) return null;
+
+    const down = Math.round(Number(payable || 0) * (Number(plan.downPercent || 0) / 100));
+    const rest = Math.max(0, Number(payable || 0) - down);
+    const n = Math.max(0, Number(plan.installments || 0));
+    const each = n > 0 ? Math.ceil(rest / n) : 0;
+
+    const installments = [];
+    const now = new Date();
+
+    for (let i = 1; i <= n; i++) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() + i);
+      installments.push({
+        index: i,
+        dueDate: d.toLocaleDateString('fa-IR'),
+        amount: each,
+        status: 'در انتظار پرداخت'
+      });
+    }
+
+    return {
+      downPayment: down,
+      eachInstallment: each,
+      count: n,
+      installments
+    };
+  }
+
+
+    return {
+      downPayment: down,
+      eachInstallment: each,
+      count: n,
+      installments
+    };
+  }
+
 
   function login(username, password) {
     const users = LS.get(KEYS.USERS, {});
@@ -552,6 +645,10 @@ function ensureSeedUsers() {
   function syncAuthUI() {
     const user = getCurrentUser();
 
+
+    const isAdmin = isAdminUser(user);
+    // Admin entry points are outside avatar menu (hard gated)
+    qsa('[data-admin-link]').forEach((el) => { el.hidden = !isAdmin; });
     const authArea = qs('#authArea');
     const loginBtn = qs('#headerAuthBtn');
     const userMenu = qs('#headerUserMenu');
@@ -594,17 +691,24 @@ function ensureSeedUsers() {
           parent.hidden = true;
         }
       }
-
-      // Toggle menu options
+      
+      // Toggle menu options (SAFE + deterministic)
       const adminLink = qs('#userMenuAdminPage');
       const ordersLink = qs('#userMenuOrders');
-      if (adminLink) adminLink.hidden = user.role !== 'admin';
-      if (ordersLink) ordersLink.hidden = user.role === 'admin';
-
-      if (ordersLink && user.role !== 'admin') {
+      
+      const isAdmin = user && user.role === 'admin';
+      
+      // Admin page: hidden by default, only show for admin
+      if (adminLink) adminLink.hidden = !isAdmin;
+      
+      // Orders: only for non-admin
+      if (ordersLink) ordersLink.hidden = isAdmin;
+      
+      if (ordersLink && !isAdmin) {
         const cnt = ordersForUser(user.id).length;
         ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
       }
+
 
 
       // Mobile
@@ -1035,6 +1139,11 @@ function ensureSeedUsers() {
 
     const { payable, savings, discount } = computeTotals(cart);
 
+
+    let installmentInfo = null;
+    if (paymentType !== 'نقدی' && installmentPlan) {
+      installmentInfo = buildInstallmentSchedule(payable, installmentPlan);
+    }
     // credit check for credit method
     if (paymentType !== 'نقدی') {
       if (Number(user.credit || 0) < payable) {
@@ -1061,6 +1170,7 @@ function ensureSeedUsers() {
       discount,
       savings,
       installmentPlan: installmentPlan || null,
+      installmentInfo: installmentInfo || null,
       items: items.map((it) => ({
         productId: it.productId,
         title: it.title,
@@ -1166,6 +1276,28 @@ function ensureSeedUsers() {
         `;
       }).join('');
 
+
+      let instHtml = '';
+      if (o.installmentInfo && o.paymentType === 'اعتباری/اقساط') {
+        const info = o.installmentInfo;
+        const rows = (info.installments || []).map((x) => {
+          return `
+            <div class=\"installment-row\">
+              <div>قسط ${x.index} — <strong>${formatIR(x.amount)} تومان</strong></div>
+              <div>${escapeHTML(x.dueDate)} • ${escapeHTML(x.status || '—')}</div>
+            </div>
+          `;
+        }).join('');
+
+        instHtml = `
+          <div class=\"installments\">
+            <div class=\"installments__title\">اقساط</div>
+            <div class=\"muted\">پیش‌پرداخت: ${formatIR(info.downPayment)} تومان • مبلغ هر قسط: ${formatIR(info.eachInstallment)} تومان</div>
+            <div style=\"height:8px\"></div>
+            ${rows}
+          </div>
+        `;
+      }
       return `
         <article class="orders-card">
           <header class="orders-card__head">
@@ -1178,7 +1310,8 @@ function ensureSeedUsers() {
             <span class="pill pill--accent">مبلغ: ${formatIR(total)} تومان</span>
           </div>
           <div class="orders-card__addr">آدرس: ${escapeHTML(o.address || '—')}</div>
-          <div class="orders-card__items">${itemsHtml}</div>
+          <div class=\"orders-card__items\">${itemsHtml}</div>
+          ${instHtml}
         </article>
       `;
     }).join('');
@@ -1187,6 +1320,17 @@ function ensureSeedUsers() {
   function bindOrdersUI() {
     if (markBound(document.documentElement, 'ordersUI')) return;
 
+
+    // Open orders from anywhere (user menu / other triggers)
+    on(document, 'click', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      const openBtn = t.closest('#userMenuOrders,[data-open-orders]');
+      if (openBtn) {
+        e.preventDefault();
+        openOrdersOverlay();
+      }
+    });
     // close actions
     on(document, 'click', (e) => {
       const t = e.target;
@@ -1430,6 +1574,370 @@ function ensureSeedUsers() {
     if (sort) sort.addEventListener('change', () => refresh());
   }
 
+
+  // ---------- Admin (Overlay MVP) ----------
+  const ADMIN_CATALOG_KEY = 'bs_admin_catalog';
+  const ADMIN_NEWS_KEY = 'bs_admin_news';
+
+  function getAdminCatalog() {
+    const list = LS.get(ADMIN_CATALOG_KEY, null);
+    return Array.isArray(list) ? list : [];
+  }
+  function setAdminCatalog(list) { LS.set(ADMIN_CATALOG_KEY, Array.isArray(list) ? list : []); }
+
+  function getAdminNews() {
+    const list = LS.get(ADMIN_NEWS_KEY, null);
+    return Array.isArray(list) ? list : [];
+  }
+  function setAdminNews(list) { LS.set(ADMIN_NEWS_KEY, Array.isArray(list) ? list : []); }
+
+  function openAdminOverlay() {
+    const user = getCurrentUser();
+    if (!isAdminUser(user)) return;
+    const ov = qs('#adminOverlay');
+    if (!ov) return;
+    ov.hidden = false;
+    document.body.classList.add('modal-open');
+    const btn = qs('#headerAdminBtn');
+    btn && btn.setAttribute('aria-expanded', 'true');
+    renderAdminUsers();
+    renderAdminCatalog();
+    renderAdminNews();
+    renderAdminReports();
+  }
+
+  function closeAdminOverlay() {
+    const ov = qs('#adminOverlay');
+    if (!ov) return;
+    ov.hidden = true;
+    document.body.classList.remove('modal-open');
+    const btn = qs('#headerAdminBtn');
+    btn && btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function setAdminTab(tab) {
+    qsa('[data-admin-tab]').forEach((b) => {
+      const active = b.getAttribute('data-admin-tab') === tab;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    qsa('[data-admin-panel]').forEach((p) => {
+      const active = p.getAttribute('data-admin-panel') === tab;
+      p.classList.toggle('is-active', active);
+    });
+  }
+
+  function renderAdminUsers() {
+    const host = qs('#adminUsersList');
+    if (!host) return;
+    const users = LS.get(KEYS.USERS, {});
+    const q = String(qs('#adminUserQ')?.value || '').trim();
+    const role = String(qs('#adminUserRole')?.value || 'all');
+
+    const arr = Object.values(users || {});
+    const norm = (s) => String(s || '').toLowerCase();
+
+    const filtered = arr.filter((u) => {
+      if (role !== 'all' && String(u.role) !== role) return false;
+      if (!q) return true;
+      const hay = [u.fullName, u.nationalId, u.id, u.mobile].map(norm).join(' ');
+      return hay.includes(norm(q));
+    });
+
+    const usersMap = users || {};
+    host.innerHTML = filtered.map((u) => {
+      const parentLine = (u.role === 'student' && u.parentId && usersMap[u.parentId])
+        ? `فرزندِ: ${escapeHTML(usersMap[u.parentId].fullName)}${usersMap[u.parentId].positionTitle ? ' ('+escapeHTML(usersMap[u.parentId].positionTitle)+')' : ''}`
+        : '';
+      const roleLabel = u.roleLabel || (u.role === 'admin' ? 'مدیر سیستم' : u.role === 'staff' ? 'پرسنل' : 'دانش‌آموز');
+      return `
+        <div class="admin-user-card" data-user="${escapeHTML(u.id)}">
+          <div class="admin-user-main">
+            <img class="admin-user-avatar" src="${escapeHTML(u.avatar || ('images/avatars/'+u.id+'.png'))}" alt="">
+            <div>
+              <div class="admin-user-name">${escapeHTML(u.fullName || '—')}</div>
+              <div class="admin-user-meta">${escapeHTML(roleLabel)} • کد: ${escapeHTML(u.id)} • کدملی: ${escapeHTML(u.nationalId || '—')}${parentLine ? ' • ' + parentLine : ''}</div>
+            </div>
+          </div>
+          <div class="admin-user-actions">
+            <div class="muted" style="margin-bottom:6px">اعتبار فعلی: <strong>${formatIR(u.credit || 0)}</strong> تومان</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+              <input class="admin-input admin-input--num" type="number" inputmode="numeric" min="0" placeholder="افزایش اعتبار" data-credit-amount>
+              <button class="btn btn-primary" type="button" data-credit-apply>اعمال</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('') || '<div class="muted">کاربری یافت نشد.</div>';
+  }
+
+  function applyCreditToUser(userId, amount) {
+    const users = LS.get(KEYS.USERS, {});
+    const u = users[userId];
+    if (!u) return;
+    const a = Math.max(0, Number(amount || 0));
+    users[userId] = { ...u, credit: Number(u.credit || 0) + a };
+    LS.set(KEYS.USERS, users);
+  }
+
+  function applyCreditBulk(role, amount) {
+    const users = LS.get(KEYS.USERS, {});
+    const a = Math.max(0, Number(amount || 0));
+    Object.keys(users).forEach((id) => {
+      const u = users[id];
+      if (!u) return;
+      if (role !== 'all' && String(u.role) !== role) return;
+      users[id] = { ...u, credit: Number(u.credit || 0) + a };
+    });
+    LS.set(KEYS.USERS, users);
+  }
+
+  function exportUsersCSV() {
+    const users = LS.get(KEYS.USERS, {});
+    const rows = [['id','fullName','role','nationalId','mobile','credit','parentId','positionTitle','address']];
+    Object.values(users || {}).forEach((u) => {
+      rows.push([
+        u.id, u.fullName, u.role, u.nationalId, u.mobile, u.credit, u.parentId || '', u.positionTitle || '', (u.address || '').replace(/\n/g,' ')
+      ]);
+    });
+    const csv = rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'behsayar_users.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1200);
+  }
+
+  function renderAdminCatalog() {
+    const host = qs('#adminCatalogList');
+    if (!host) return;
+    const list = getAdminCatalog();
+    if (!list.length) {
+      host.innerHTML = '<div class="muted">موردی ثبت نشده است.</div>';
+      return;
+    }
+    host.innerHTML = list.map((x, i) => {
+      return `
+        <div class="admin-user-card" data-cat-idx="${i}">
+          <div>
+            <div class="admin-user-name">${escapeHTML(x.title || '—')}</div>
+            <div class="admin-user-meta">${escapeHTML(x.type === 'service' ? 'خدمت' : 'محصول')} • قیمت: ${formatIR(x.price || 0)} تومان</div>
+          </div>
+          <button class="btn" type="button" data-cat-del>حذف</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderAdminNews() {
+    const host = qs('#adminNewsList');
+    if (!host) return;
+    const list = getAdminNews();
+    if (!list.length) {
+      host.innerHTML = '<div class="muted">موردی ثبت نشده است.</div>';
+      return;
+    }
+    host.innerHTML = list.map((x, i) => {
+      return `
+        <div class="admin-user-card" data-news-idx="${i}">
+          <div>
+            <div class="admin-user-name">${escapeHTML(x.title || '—')}</div>
+            <div class="admin-user-meta">تاریخ: ${escapeHTML(x.date || '—')}</div>
+          </div>
+          <button class="btn" type="button" data-news-del>حذف</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderAdminReports() {
+    const q = String(qs('#adminReportQ')?.value || '').trim().toLowerCase();
+    const users = LS.get(KEYS.USERS, {});
+    const orders = getOrders();
+
+    // aggregate by product title
+    const agg = new Map(); // key -> {title, count, revenue, satSum, satN}
+    (Array.isArray(orders) ? orders : []).forEach((o) => {
+      const sat = Number(o.satisfaction || 0);
+      const items = Array.isArray(o.items) ? o.items : [];
+      items.forEach((it) => {
+        const key = String(it.productId || it.title || 'x');
+        const cur = agg.get(key) || { title: it.title || '—', count: 0, revenue: 0, satSum: 0, satN: 0 };
+        cur.count += Number(it.qty || 0);
+        cur.revenue += Number(it.qty || 0) * Number(it.unitPrice || 0);
+        if (sat > 0) { cur.satSum += sat; cur.satN += 1; }
+        agg.set(key, cur);
+      });
+    });
+
+    const aggArr = Array.from(agg.values()).sort((a,b) => b.revenue - a.revenue);
+    const aggHost = qs('#adminAggReport');
+    if (aggHost) {
+      aggHost.innerHTML = aggArr.map((x) => {
+        const avg = x.satN ? (x.satSum / x.satN).toFixed(1) : '—';
+        return `
+          <div class="admin-user-card">
+            <div>
+              <div class="admin-user-name">${escapeHTML(x.title)}</div>
+              <div class="admin-user-meta">فروش: ${formatIR(x.count)} • مبلغ: ${formatIR(x.revenue)} تومان • رضایت: ${avg}</div>
+            </div>
+          </div>
+        `;
+      }).join('') || '<div class="muted">داده‌ای برای نمایش نیست.</div>';
+    }
+
+    const detHost = qs('#adminOrdersReport');
+    if (detHost) {
+      const norm = (s) => String(s || '').toLowerCase();
+      const filtered = (Array.isArray(orders) ? orders : []).filter((o) => {
+        if (!q) return true;
+        const u = users[o.userId];
+        const parent = u && u.role === 'student' && u.parentId ? users[u.parentId] : null;
+        const hay = [
+          o.id, o.createdAt, o.paymentType, u?.fullName, u?.nationalId, u?.id,
+          parent?.fullName, parent?.positionTitle
+        ].map(norm).join(' ');
+        return hay.includes(q);
+      }).slice().sort((a,b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+
+      detHost.innerHTML = filtered.map((o) => {
+        const u = users[o.userId];
+        const roleLabel = u?.roleLabel || '—';
+        let extra = '';
+        if (u && u.role === 'student' && u.parentId && users[u.parentId]) {
+          const p = users[u.parentId];
+          extra = ` • فرزندِ ${escapeHTML(p.fullName)}${p.positionTitle ? ' ('+escapeHTML(p.positionTitle)+')' : ''}`;
+        }
+        return `
+          <div class="admin-user-card">
+            <div>
+              <div class="admin-user-name">کد رهگیری: ${escapeHTML(o.id || '—')}</div>
+              <div class="admin-user-meta">${escapeHTML(o.createdAt || '—')} • ${escapeHTML(roleLabel)} • ${escapeHTML(u?.fullName || '—')}${extra}</div>
+              <div class="admin-user-meta">مبلغ: ${formatIR(orderTotal(o))} تومان • پرداخت: ${escapeHTML(o.paymentType || '—')} • رضایت: ${escapeHTML(String(o.satisfaction || '—'))}</div>
+            </div>
+          </div>
+        `;
+      }).join('') || '<div class="muted">سفارشی مطابق فیلتر یافت نشد.</div>';
+    }
+  }
+
+  function bindAdminUI() {
+    if (markBound(document.documentElement, 'adminUI')) return;
+
+    const btn = qs('#headerAdminBtn');
+    on(btn, 'click', (e) => {
+      e.preventDefault();
+      openAdminOverlay();
+    });
+
+    on(document, 'click', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+
+      if (t.matches('[data-admin-close]')) {
+        e.preventDefault();
+        closeAdminOverlay();
+        return;
+      }
+
+      const tab = t.closest('[data-admin-tab]');
+      if (tab) {
+        e.preventDefault();
+        setAdminTab(tab.getAttribute('data-admin-tab') || 'users');
+        return;
+      }
+
+      // per-user credit apply
+      const card = t.closest('[data-user]');
+      if (card && t.matches('[data-credit-apply]')) {
+        const uid = card.getAttribute('data-user');
+        const amount = Number(card.querySelector('[data-credit-amount]')?.value || 0);
+        applyCreditToUser(uid, amount);
+        renderAdminUsers();
+        syncAuthUI();
+        return;
+      }
+
+      // bulk credit
+      if (t.matches('#adminCreditApplyAll')) {
+        const amount = Number(qs('#adminCreditAmountAll')?.value || 0);
+        const role = String(qs('#adminCreditTargetAll')?.value || 'all');
+        applyCreditBulk(role, amount);
+        renderAdminUsers();
+        syncAuthUI();
+        return;
+      }
+
+      if (t.matches('#adminExportUsers')) {
+        exportUsersCSV();
+        return;
+      }
+
+      if (t.matches('#adminCatalogAdd')) {
+        const type = String(qs('#adminCatalogType')?.value || 'product');
+        const title = String(qs('#adminCatalogTitle')?.value || '').trim();
+        const price = Number(qs('#adminCatalogPrice')?.value || 0);
+        if (!title) return;
+        const list = getAdminCatalog();
+        list.unshift({ type, title, price, createdAt: Date.now() });
+        setAdminCatalog(list);
+        qs('#adminCatalogTitle').value = '';
+        qs('#adminCatalogPrice').value = '';
+        renderAdminCatalog();
+        return;
+      }
+
+      const catCard = t.closest('[data-cat-idx]');
+      if (catCard && t.matches('[data-cat-del]')) {
+        const idx = Number(catCard.getAttribute('data-cat-idx') || -1);
+        const list = getAdminCatalog();
+        if (idx >= 0) { list.splice(idx, 1); setAdminCatalog(list); renderAdminCatalog(); }
+        return;
+      }
+
+      if (t.matches('#adminNewsAdd')) {
+        const title = String(qs('#adminNewsTitle')?.value || '').trim();
+        const date = String(qs('#adminNewsDate')?.value || '').trim();
+        if (!title) return;
+        const list = getAdminNews();
+        list.unshift({ title, date, createdAt: Date.now() });
+        setAdminNews(list);
+        qs('#adminNewsTitle').value = '';
+        qs('#adminNewsDate').value = '';
+        renderAdminNews();
+        return;
+      }
+
+      const newsCard = t.closest('[data-news-idx]');
+      if (newsCard && t.matches('[data-news-del]')) {
+        const idx = Number(newsCard.getAttribute('data-news-idx') || -1);
+        const list = getAdminNews();
+        if (idx >= 0) { list.splice(idx, 1); setAdminNews(list); renderAdminNews(); }
+        return;
+      }
+
+      if (t.matches('#adminReportRefresh')) {
+        renderAdminReports();
+        return;
+      }
+    });
+
+    on(document, 'input', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      if (t.matches('#adminUserQ') || t.matches('#adminUserRole')) renderAdminUsers();
+      if (t.matches('#adminReportQ')) renderAdminReports();
+    });
+
+    on(document, 'keydown', (e) => {
+      const ov = qs('#adminOverlay');
+      if (e.key === 'Escape' && ov && !ov.hidden) closeAdminOverlay();
+    });
+  }
+
 // ---------- boot ----------
   function boot() {
     ensureSeedUsers();
@@ -1445,6 +1953,7 @@ function ensureSeedUsers() {
     bindAddToCart();
     bindCheckoutUI();
     bindOrdersUI();
+    bindAdminUI();
     syncAuthUI();
     syncCartUI();
     initProductsPage();
