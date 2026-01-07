@@ -608,17 +608,24 @@ function ensureSeedUsers() {
           parent.hidden = true;
         }
       }
-
-      // Toggle menu options
+      
+      // Toggle menu options (SAFE + deterministic)
       const adminLink = qs('#userMenuAdminPage');
       const ordersLink = qs('#userMenuOrders');
-      if (adminLink) adminLink.hidden = user.role !== 'admin';
-      if (ordersLink) ordersLink.hidden = user.role === 'admin';
-
-      if (ordersLink && user.role !== 'admin') {
+      
+      const isAdmin = user && user.role === 'admin';
+      
+      // Admin page: hidden by default, only show for admin
+      if (adminLink) adminLink.hidden = !isAdmin;
+      
+      // Orders: only for non-admin
+      if (ordersLink) ordersLink.hidden = isAdmin;
+      
+      if (ordersLink && !isAdmin) {
         const cnt = ordersForUser(user.id).length;
         ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
       }
+
 
 
       // Mobile
