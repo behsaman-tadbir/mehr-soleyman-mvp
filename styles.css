@@ -1949,7 +1949,7 @@ body.modal-open{overflow:hidden}.auth-trigger {
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
-  max-height: calc(100dvh - 48px); /* ✅ بهتر از 100vh برای موبایل */
+  max-height: calc(100dvh - 60px); /* ✅ بهتر از 100vh برای موبایل */
   display: flex;
   flex-direction: column;
   z-index: 20001; /* یک لایه بالاتر از بک‌دراپ */
