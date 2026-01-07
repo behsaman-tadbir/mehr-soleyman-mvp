@@ -1490,9 +1490,9 @@ function ensureSeedUsers() {
     visible.sort((a,b) => {
       if (mode === 'best') return getNum(b,'sold') - getNum(a,'sold');
       if (mode === 'new') return (new Date(b.dataset.created || 0)) - (new Date(a.dataset.created || 0));
-      if (mode === 'discount') return getNum(b,'discount') - getNum(a,'discount');
-      if (mode === 'priceHigh') return getNum(b,'price') - getNum(a,'price');
-      if (mode === 'priceLow') return getNum(a,'price') - getNum(b,'price');
+      if (mode === 'discount_desc') return getNum(b,'discount') - getNum(a,'discount');
+      if (mode === 'price_desc') return getNum(b,'price') - getNum(a,'price');
+      if (mode === 'price_asc') return getNum(a,'price') - getNum(b,'price');
       return 0;
     });
 
