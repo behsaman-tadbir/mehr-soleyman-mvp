@@ -9,7 +9,7 @@
   const qs = (s, r = document) => r.querySelector(s);
   const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
   const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
-
+filterCards()
   // Prevent accidental double-binding (e.g., if app.js is included twice)
   const markBound = (el, key) => {
     if (!el) return false;
@@ -1465,7 +1465,10 @@ function initProductsPage(){
     const gradeVal = (grade && grade.value) || 'all';
 
     cards.forEach(card => {
-      const title = norm(card.dataset.title);
+    const title = norm(
+      card.dataset.title ||
+      card.querySelector('.product-title, .product-name')?.textContent
+    );
       const c = card.dataset.cat || 'all';
       const g = card.dataset.grade || 'all';
 
