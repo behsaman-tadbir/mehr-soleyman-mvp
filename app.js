@@ -1504,10 +1504,12 @@ function initProductsPage(){
     visible.forEach(el => grid.appendChild(el));
   }
 
-  function refresh(){
-    filterCards();
-    sortCards();
-  }
+   function refresh(only){
+     filterCards();
+     if (only !== 'filter') sortCards();
+   }
+
+  
 
   applyFromQueryString();
   refresh();
