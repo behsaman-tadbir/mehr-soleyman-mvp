@@ -1436,7 +1436,7 @@ img{
 }
 
 /* === StepF: Brand/Search tweaks (requested) === */
-.page-home .site-header .brand-title{
+/*page-home .site-header .brand-title{
   font-weight:900;
   font-size:2.15rem;
   line-height:1;
@@ -1445,7 +1445,14 @@ img{
   -webkit-background-clip:text;
   background-clip:text;
   color:transparent;
-}
+}*/
+
+.page-home .site-header .brand-title {
+  font-weight: 900;
+  font-size: 1.9rem;
+  line-height: 1;
+  letter-spacing: -0.2px;
+  color: rgb(253, 153, 3);
 
 .page-home .site-header .brand-img{
   width:65px;
