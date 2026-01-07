@@ -69,7 +69,11 @@
 <div class="um-name" id="userMenuName">نام و نام خانوادگی: —</div>
 <div class="um-meta" id="userMenuMeta">سمت: —</div>
 </div>
-<a class="user-menu__link" href="#" id="userMenuCart">سبد خرید</a>
+<button class="header-cart-btn" type="button" id="headerCartBtn" aria-label="سبد خرید" aria-expanded="false">
+  <span class="header-cart-btn__icon" aria-hidden="true">🛒</span>
+  <span class="header-cart-btn__count" id="headerCartCount">0</span>
+</button>
+
 <a class="user-menu__link" href="#" id="userMenuOrders">سوابق خرید</a>
 <a class="user-menu__link" href="dashboard.html#password" id="userMenuPassword">تغییر کلمه عبور</a>
 <button class="user-menu__logout" id="userMenuLogout" type="button">خروج</button>
@@ -762,6 +766,139 @@
       </div>
       <div class="pay-hint" id="payHint"></div>
     </form>
+  </div>
+</div>
+
+
+<!-- Cart Drawer -->
+<div class="cart-drawer" id="cartDrawer" hidden>
+  <div class="cart-drawer__backdrop" data-cart-close></div>
+  <aside class="cart-drawer__panel" role="dialog" aria-modal="true" aria-label="سبد خرید">
+    <div class="cart-drawer__head">
+      <div class="cart-drawer__title">سبد خرید</div>
+      <button class="cart-drawer__close" type="button" data-cart-close aria-label="بستن">×</button>
+    </div>
+    <div class="cart-drawer__body">
+      <div id="cartItems"></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-drawer__sum">
+        <span class="muted">جمع:</span>
+        <strong id="cartTotal">0</strong>
+      </div>
+      <div class="cart-drawer__hint muted" id="cartHint"></div>
+      <button class="btn btn-primary" type="button" id="cartCheckoutBtn">ادامه خرید</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Checkout Overlay -->
+<div class="modal" id="checkoutOverlay" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel modal__panel--checkout" role="dialog" aria-modal="true" aria-label="تسویه حساب">
+    <div class="modal__head">
+      <div class="modal__title">تسویه حساب</div>
+      <button class="modal__close" type="button" data-modal-close aria-label="بستن">×</button>
+    </div>
+
+    <div class="checkout">
+      <div class="checkout__grid">
+        <section class="checkout__card">
+          <div class="checkout__card-title">اقلام سبد</div>
+          <div id="checkoutItems" class="checkout__items"></div>
+        </section>
+
+        <aside class="checkout__card">
+          <div class="checkout__card-title">خلاصه پرداخت</div>
+
+          <div class="checkout__row">
+            <span class="muted">مبلغ قابل پرداخت</span>
+            <strong id="checkoutTotal">—</strong>
+          </div>
+
+          <div class="checkout__row">
+            <span class="muted">سود این خرید</span>
+            <strong id="checkoutSavings">—</strong>
+          </div>
+
+          <div class="checkout__row checkout__row--credit">
+            <span class="muted">اعتبار شما</span>
+            <strong id="checkoutCredit">—</strong>
+          </div>
+
+          <div class="checkout__row">
+            <span class="muted">مانده بعد از خرید</span>
+            <strong id="checkoutRemaining">—</strong>
+          </div>
+
+          <div class="checkout__divider"></div>
+
+          <div class="checkout__row">
+            <label class="muted" for="checkoutDiscountCode">کد تخفیف</label>
+            <div class="checkout__discount">
+              <input class="input" id="checkoutDiscountCode" placeholder="مثلاً OFF10" autocomplete="off">
+              <button class="btn btn-ghost" type="button" id="checkoutApplyDiscount">اعمال</button>
+            </div>
+          </div>
+
+          <div id="checkoutMsg" class="checkout__msg" hidden></div>
+
+          <div class="checkout__pay">
+            <div class="checkout__pay-tabs" role="tablist" aria-label="روش پرداخت">
+              <button class="chip" type="button" data-pay="cash" aria-pressed="true">پرداخت نقدی</button>
+              <button class="chip" type="button" data-pay="credit" aria-pressed="false">اعتباری / اقساط</button>
+            </div>
+
+            <div id="checkoutCashBox">
+              <button class="btn btn-primary w-100" type="button" id="checkoutPayCash">پرداخت و ورود به درگاه</button>
+            </div>
+
+            <div id="checkoutCreditBox" hidden>
+              <div class="checkout__plans" id="installmentPlans"></div>
+              <div class="checkout__preview" id="installmentPreview"></div>
+              <button class="btn btn-primary w-100" type="button" id="checkoutConfirmCredit">ثبت خرید اعتباری</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pay Modal -->
+<div class="modal" id="payModal" hidden>
+  <div class="modal__backdrop" data-pay-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-label="درگاه پرداخت">
+    <div class="modal__head">
+      <div class="modal__title">درگاه پرداخت</div>
+      <button class="modal__close" type="button" data-pay-close aria-label="بستن">×</button>
+    </div>
+
+    <div class="pay">
+      <div class="muted" id="payHint"></div>
+
+      <form id="payForm" class="pay__form">
+        <div class="pay__row">
+          <label class="muted">شماره کارت</label>
+          <input class="input" name="card" inputmode="numeric" autocomplete="cc-number" placeholder="**** **** **** ****" required>
+        </div>
+        <div class="pay__grid">
+          <div class="pay__row">
+            <label class="muted">تاریخ انقضا</label>
+            <input class="input" name="exp" placeholder="MM/YY" autocomplete="cc-exp" required>
+          </div>
+          <div class="pay__row">
+            <label class="muted">CVV2</label>
+            <input class="input" name="cvv" inputmode="numeric" autocomplete="cc-csc" placeholder="***" required>
+          </div>
+        </div>
+        <div class="pay__row">
+          <label class="muted">رمز پویا</label>
+          <input class="input" name="otp" inputmode="numeric" autocomplete="one-time-code" placeholder="******" required>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">پرداخت</button>
+      </form>
+    </div>
   </div>
 </div>
 

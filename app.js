@@ -1103,6 +1103,10 @@ function ensureSeedUsers() {
         closePayModal();
       }
 
+      if (t.matches('[data-modal-close]')) {
+        closeCheckoutOverlay();
+      }
+
       const plan = t.closest('[data-plan]');
       if (plan) {
         const pid = plan.getAttribute('data-plan');
