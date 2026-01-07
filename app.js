@@ -160,25 +160,73 @@ const formatIR = (n) => {
     }
   }
 
-function ensureSeedUsers() {
+   function ensureSeedUsers() {
     const users = LS.get(KEYS.USERS, {});
     let changed = false;
 
     for (const u of DEMO_USERS) {
-      if (!users[u.id]) {
+      const ex = users[u.id];
+
+      if (!ex) {
         users[u.id] = u;
         changed = true;
-      } else {
-        // keep existing but ensure required fields exist
-        const merged = { ...u, ...users[u.id] };
-        // password should remain user-entered? for demo keep seed default
-        merged.password = users[u.id].password || u.password;
-        users[u.id] = merged;
-        changed = true;
+        continue;
       }
+
+      // Merge: keep user-editable fields (credit/password/avatar/etc) but ALWAYS lock role info for demo users
+      const merged = { ...ex, ...u };
+
+      // keep user-entered password/credit if present
+      merged.password = (ex.password != null && String(ex.password).trim() !== '') ? ex.password : u.password;
+      merged.credit = Number.isFinite(Number(ex.credit)) ? Number(ex.credit) : u.credit;
+
+      // keep custom avatar/name/contact fields if they exist
+      merged.avatar = ex.avatar || u.avatar;
+      merged.fullName = ex.fullName || u.fullName;
+      merged.nationalId = ex.nationalId || u.nationalId;
+      merged.fatherName = ex.fatherName || u.fatherName;
+      merged.mobile = ex.mobile || u.mobile;
+      merged.address = ex.address || u.address;
+      merged.positionTitle = ex.positionTitle || u.positionTitle;
+
+      // IMPORTANT: lock role & roleLabel to the seeded demo definitions
+      merged.role = u.role;
+      merged.roleLabel = u.roleLabel;
+      merged.parentId = u.parentId;
+      merged.children = u.children;
+
+      users[u.id] = merged;
+      changed = true;
     }
+
     if (changed) LS.set(KEYS.USERS, users);
   }
+   
+       // Merge but NEVER allow stored role/roleLabel to override seed role
+       const prev = users[u.id] || {};
+       const merged = { ...u, ...prev };
+   
+       // ✅ lock role from seed (prevents admin leak)
+       merged.role = u.role;
+       merged.roleLabel = u.roleLabel;
+   
+       // keep password if user changed it (demo)
+       merged.password = prev.password || u.password;
+   
+       // keep credit if it was changed by admin
+       merged.credit = Number.isFinite(Number(prev.credit)) ? Number(prev.credit) : Number(u.credit || 0);
+   
+       // keep relationships from seed (stable)
+       if (u.parentId !== undefined) merged.parentId = u.parentId;
+       if (u.children !== undefined) merged.children = u.children;
+   
+       users[u.id] = merged;
+       changed = true;
+     }
+   
+     if (changed) LS.set(KEYS.USERS, users);
+   }
+
 
   function getSession() {
     return LS.get(KEYS.SESSION, null);
@@ -594,17 +642,24 @@ function ensureSeedUsers() {
           parent.hidden = true;
         }
       }
-
-      // Toggle menu options
+      
+      // Toggle menu options (SAFE + deterministic)
       const adminLink = qs('#userMenuAdminPage');
       const ordersLink = qs('#userMenuOrders');
-      if (adminLink) adminLink.hidden = user.role !== 'admin';
-      if (ordersLink) ordersLink.hidden = user.role === 'admin';
-
-      if (ordersLink && user.role !== 'admin') {
+      
+      const isAdmin = !!(user && String(user.id) === '1003');
+      
+      // Admin page: hidden by default, only show for admin
+      if (adminLink) adminLink.hidden = !isAdmin;
+      
+      // Orders: only for non-admin
+      if (ordersLink) ordersLink.hidden = isAdmin;
+      
+      if (ordersLink && !isAdmin) {
         const cnt = ordersForUser(user.id).length;
         ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
       }
+
 
 
       // Mobile
