@@ -1950,21 +1950,15 @@ body.modal-open{overflow:hidden}.auth-trigger {
 @media (max-width: 768px) {
   .checkout-overlay__panel,
   .pay-modal__panel {
-    top: env(safe-area-inset-top, 0px);
+    top: 0;
     left: 0;
     transform: none;
     width: 100vw;
-
-    /* 👇 مهم‌ترین خط */
-    max-height: calc(
-      100dvh
-      - env(safe-area-inset-bottom, 0px)
-    );
-
+    max-height: 100dvh;
     border-radius: 0;
   }
 }
-erlay__panel,
+.checkout-overlay__panel,
 .pay-modal__panel{
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -2132,12 +2126,15 @@ erlay__panel,
   .checkout-credit__value { font-size: 1.65rem; }
   .pay-grid { grid-template-columns: 1fr; }
 }
-/* خود لایه‌ی overlay باید بالاتر از هدر باشد */
+
+/* ================================
+   Admin + Orders Overlays (MVP)
+================================== */
 .orders-overlay,
 .admin-overlay{
   position: fixed;
   inset: 0;
-  z-index: 25000; /* از هدر بالاتر */
+  z-index: 1350;
 }
 .orders-overlay[hidden],
 .admin-overlay[hidden]{ display:none !important; }
@@ -2149,21 +2146,19 @@ erlay__panel,
   background: rgba(0,0,0,.45);
 }
 
-
-/* خود پنل هم یک پله بالاتر */
 .orders-overlay__panel,
 .admin-overlay__panel{
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   width: min(980px, calc(100% - 24px));
-  max-height: calc(100dvh - 24px);
-  margin: 0;
-  z-index: 25001;
+  max-height: calc(100% - 24px);
+  margin: 12px auto;
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.25);
+  overflow: hidden;
+  display:flex;
+  flex-direction: column;
 }
-}
-
 
 .orders-overlay__head,
 .admin-overlay__head{
