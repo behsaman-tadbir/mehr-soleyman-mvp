@@ -1447,7 +1447,7 @@ function initProductsPage(){
   const grade = document.getElementById('productsGrade');
   const sort = document.getElementById('productsSort');
 
-  const cards = Array.from(grid.querySelectorAll('.product-card[data-id]'));
+  const cards = Array.from(grid.querySelectorAll('.product-card'));
 
   function norm(s){
     return (s || '').toString().trim().toLowerCase();
@@ -1494,7 +1494,7 @@ function initProductsPage(){
       if (mode === 'discount_desc') return getNum(b,'discount') - getNum(a,'discount');
       if (mode === 'price_desc') return getNum(b,'price') - getNum(a,'price');
       if (mode === 'price_asc') return getNum(a,'price') - getNum(b,'price');
-      return 0;
+
     });
 
     // فقط reorder روی آیتم‌های قابل مشاهده
