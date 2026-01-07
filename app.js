@@ -47,22 +47,29 @@
       password: '123',
       role: 'student',
       roleLabel: 'دانش‌آموز',
-      fullName: 'علی حسینی',
+      fullName: 'آرین حسینی',
       nationalId: '0016598255',
       fatherName: 'حسین',
-      
+      mobile: '09121234567',
+      address: 'تهران، خیابان ولیعصر، کوچه ۱۲، پلاک ۸',
+      avatar: 'images/avatars/1001.png',
       parentId: '1002',
-credit: 20000000
+      credit: 5000000
     },
     {
       id: '1002',
       password: '123',
-      role: 'personnel',
+      role: 'staff',
       roleLabel: 'پرسنل',
       fullName: 'حسین حسینی',
       nationalId: '0025478844',
-      fatherName: 'پدر علی',
-      credit: 12000000
+      fatherName: 'مجید',
+      mobile: '09123334455',
+      address: 'تهران، سعادت‌آباد، خیابان سرو، پلاک ۲۱',
+      positionTitle: 'کارشناس فروش',
+      avatar: 'images/avatars/1002.png',
+      children: ['1001'],
+      credit: 5000000
     },
     {
       id: '1003',
@@ -72,12 +79,40 @@ credit: 20000000
       fullName: 'علیرضا داداشی',
       nationalId: '0012345678',
       fatherName: '',
-      credit: 50000000
+      mobile: '09120001122',
+      address: 'تهران، ونک، خیابان ملاصدرا',
+      avatar: 'images/avatars/1003.png',
+      credit: 5000000
     }
   ];
 
+  
+  function getOrders() {
+    return LS.get(KEYS.ORDERS, []);
+  }
 
-  // Demo orders (for مدیریتی/سوابق خرید)
+  function ordersForUser(userId) {
+    const all = getOrders();
+    return (Array.isArray(all) ? all : []).filter((o) => o.userId === userId);
+  }
+
+const formatIR = (n) => {
+    const num = Number(n || 0);
+    const s = num.toLocaleString('fa-IR');
+    return s;
+  };
+
+  function escapeHTML(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+
+  
   const DEMO_ORDERS = [
     {
       id: 'TRK-24001',
@@ -88,8 +123,8 @@ credit: 20000000
       paymentType: 'اعتباری/اقساط',
       satisfaction: 5,
       items: [
-        { productId: 'best-001', title: 'پکیج ریاضی پایه (تقویتی)', meta: 'خیلی سبز', qty: 1, unitPrice: 640000 },
-        { productId: 'best-003', title: 'برنامه‌ریزی آزمون‌های هفتگی', meta: 'قلمچی', qty: 1, unitPrice: 790000 }
+        { productId: 'best-001', title: 'بهترین تست ریاضی', qty: 1, unitPrice: 910000 },
+        { productId: 'best-003', title: 'کتاب کمک‌آموزشی علوم', qty: 1, unitPrice: 780000 }
       ]
     },
     {
@@ -101,51 +136,31 @@ credit: 20000000
       paymentType: 'نقدی',
       satisfaction: 4,
       items: [
-        { productId: 'new-002', title: 'لغت و درک مطلب (تقویت سریع)', meta: 'گاج', qty: 1, unitPrice: 490000 }
+        { productId: 'khi-001', title: 'خیلی سبز - عربی', qty: 1, unitPrice: 650000 }
       ]
     },
     {
       id: 'TRK-34001',
       userId: '1002',
-      createdAt: '1404/11/03',
+      createdAt: '1404/09/18',
       status: 'موفق',
-      address: 'تهران، ولیعصر، پلاک ۸',
+      address: 'تهران، سعادت‌آباد، خیابان سرو، پلاک ۲۱',
       paymentType: 'اعتباری/اقساط',
       satisfaction: 5,
       items: [
-        { productId: 'deal-007', title: 'دوره ICDL کاربردی (از صفر)', meta: 'پرش', qty: 1, unitPrice: 590000 }
+        { productId: 'srv-001', title: 'مشاوره برنامه‌ریزی درسی', qty: 1, unitPrice: 1200000 }
       ]
     }
   ];
 
-  function getOrders() {
-    return LS.get(KEYS.ORDERS, []);
-  }
-
-  function setOrders(list) {
-    LS.set(KEYS.ORDERS, Array.isArray(list) ? list : []);
-  }
-
-  function ordersForUser(userId) {
-    const all = getOrders();
-    return all.filter(o => o && o.userId === userId);
-  }
-
   function ensureSeedOrders() {
     const orders = LS.get(KEYS.ORDERS, null);
     if (!orders || !Array.isArray(orders) || orders.length === 0) {
-      setOrders(DEMO_ORDERS);
+      LS.set(KEYS.ORDERS, DEMO_ORDERS);
     }
   }
 
-
-  const formatIR = (n) => {
-    const num = Number(n || 0);
-    const s = num.toLocaleString('fa-IR');
-    return s;
-  };
-
-  function ensureSeedUsers() {
+function ensureSeedUsers() {
     const users = LS.get(KEYS.USERS, {});
     let changed = false;
 
@@ -548,7 +563,7 @@ credit: 20000000
 
       // Desktop menu fields
       const avatar = qs('#userMenuAvatar');
-      if (avatar) avatar.src = `images/avatars/${user.id}.png`;
+      if (avatar) avatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
       const credit = qs('#userMenuCredit');
       if (credit) credit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
       const name = qs('#userMenuName');
@@ -556,12 +571,41 @@ credit: 20000000
       const meta = qs('#userMenuMeta');
       if (meta) meta.textContent = user.roleLabel;
 
+      const ident = qs('#userMenuIdentity');
+      if (ident) ident.textContent = `کد: ${user.id} • کدملی: ${user.nationalId || '—'}`;
+
+      const parent = qs('#userMenuParent');
+      if (parent) {
+        if (user.role === 'student' && user.parentId) {
+          const users = LS.get(KEYS.USERS, {});
+          const p = users[user.parentId];
+          const pName = p?.fullName || '—';
+          const pPos = p?.positionTitle ? `(${p.positionTitle})` : '';
+          parent.textContent = `فرزندِ: ${pName} ${pPos}`;
+          parent.hidden = false;
+        } else {
+          parent.hidden = true;
+        }
+      }
+
+      // Toggle menu options
+      const adminLink = qs('#userMenuAdminPage');
+      const ordersLink = qs('#userMenuOrders');
+      if (adminLink) adminLink.hidden = user.role !== 'admin';
+      if (ordersLink) ordersLink.hidden = user.role === 'admin';
+
+      if (ordersLink && user.role !== 'admin') {
+        const cnt = ordersForUser(user.id).length;
+        ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
+      }
+
+
       // Mobile
       if (mobileLoginForm) mobileLoginForm.hidden = true;
       if (mobileUserMenu) mobileUserMenu.hidden = false;
 
       const mAvatar = qs('#mobileUserAvatar');
-      if (mAvatar) mAvatar.src = `images/avatars/${user.id}.png`;
+      if (mAvatar) mAvatar.src = user.avatar ? user.avatar : `images/avatars/${user.id}.png`;
       const mCredit = qs('#mobileUserCredit');
       if (mCredit) mCredit.textContent = `اعتبار: ${formatIR(user.credit)} تومان`;
       const mName = qs('#mobileUserName');
@@ -570,17 +614,6 @@ credit: 20000000
       if (mMeta) mMeta.textContent = user.roleLabel;
 
       if (bnText) bnText.textContent = 'حساب';
-
-
-      // Orders link (سوابق خرید) + شمارنده
-      const ordersLink = qs('#userMenuOrders') || qs('#userMenuCart');
-      if (ordersLink) {
-        ordersLink.hidden = user.role === 'admin';
-        if (user.role !== 'admin') {
-          const cnt = ordersForUser(user.id).length;
-          ordersLink.textContent = cnt > 0 ? `سوابق خرید (${cnt})` : 'سوابق خرید';
-        }
-      }
 
     } else {
       document.documentElement.classList.remove('is-auth');
@@ -603,253 +636,587 @@ credit: 20000000
     });
   }
 
-  // -
-
-  // ---------- Orders (سوابق خرید) ----------
-  function ensureOrdersModal() {
-    if (qs('#ordersModal')) return;
-
-    const html = `
-      <div class="orders-modal" id="ordersModal" hidden aria-modal="true" role="dialog" aria-labelledby="ordersTitle">
-        <div class="orders-modal__backdrop" data-orders-close></div>
-        <div class="orders-modal__dialog" role="document">
-          <div class="orders-modal__head">
-            <div class="orders-modal__title" id="ordersTitle">سوابق خرید</div>
-            <button type="button" class="orders-modal__close" data-orders-close aria-label="بستن">×</button>
-          </div>
-
-          <div class="orders-modal__tabs" id="ordersTabs" hidden>
-            <button type="button" class="orders-tab is-active" data-orders-tab="mine">خریدهای من</button>
-            <button type="button" class="orders-tab" data-orders-tab="child">خریدهای فرزند</button>
-          </div>
-
-          <div class="orders-modal__filters">
-            <input class="orders-filter__input" id="ordersSearch" type="search" placeholder="جستجو: کد رهگیری / کالا / آدرس" aria-label="جستجو در سوابق خرید">
-            <select class="orders-filter__select" id="ordersStatus" aria-label="فیلتر وضعیت">
-              <option value="">همه وضعیت‌ها</option>
-              <option value="موفق">موفق</option>
-              <option value="در حال پردازش">در حال پردازش</option>
-              <option value="لغو شده">لغو شده</option>
-            </select>
-          </div>
-
-          <div class="orders-modal__list" id="ordersList"></div>
-        </div>
-      </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', html);
+  
+  // ---------- Cart (MVP) ----------
+  function parseFaNumber(str) {
+    const map = { '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٬':'',',':'', '٫':'.' };
+    return String(str || '').replace(/[۰-۹٬,٫]/g, (c) => map[c] ?? c);
   }
 
-  function renderOrdersList(userId) {
-    const listEl = qs('#ordersList');
-    if (!listEl) return;
+  function parsePriceIRR(text) {
+    const raw = parseFaNumber(text).replace(/[^\d.]/g, '');
+    const n = Number(raw || 0);
+    return Number.isFinite(n) ? n : 0;
+  }
 
-    const q = (qs('#ordersSearch')?.value || '').trim();
-    const st = (qs('#ordersStatus')?.value || '').trim();
+  function getCart() {
+    return LS.get(KEYS.CART, { items: [] });
+  }
 
-    let orders = ordersForUser(userId);
+  function setCart(cart) {
+    LS.set(KEYS.CART, cart);
+    syncCartUI();
+  }
 
-    if (st) orders = orders.filter(o => (o.status || '') === st);
+  function cartCount(cart = getCart()) {
+    return (cart.items || []).reduce((sum, it) => sum + Number(it.qty || 0), 0);
+  }
 
-    if (q) {
-      const qq = q.toLowerCase();
-      orders = orders.filter(o => {
-        const hay = [
-          o.id,
-          o.createdAt,
-          o.status,
-          o.address,
-          o.paymentType,
-          ...(Array.isArray(o.items) ? o.items.map(it => `${it.title || ''} ${it.meta || ''}`) : [])
-        ].join(' ').toLowerCase();
-        return hay.includes(qq);
-      });
+  function cartTotal(cart = getCart()) {
+    return (cart.items || []).reduce((sum, it) => sum + (Number(it.qty || 0) * Number(it.unitPrice || 0)), 0);
+  }
+
+  function upsertCartItem(item) {
+    const cart = getCart();
+    cart.items = Array.isArray(cart.items) ? cart.items : [];
+    const idx = cart.items.findIndex((x) => x.productId === item.productId);
+    if (idx >= 0) {
+      cart.items[idx].qty = Number(cart.items[idx].qty || 0) + Number(item.qty || 1);
+    } else {
+      cart.items.push({ ...item, qty: Number(item.qty || 1) });
     }
+    setCart(cart);
+  }
 
-    if (!orders.length) {
-      listEl.innerHTML = '<div class="orders-empty">موردی یافت نشد.</div>';
+  function changeCartQty(productId, delta) {
+    const cart = getCart();
+    cart.items = Array.isArray(cart.items) ? cart.items : [];
+    const idx = cart.items.findIndex((x) => x.productId === productId);
+    if (idx === -1) return;
+    const next = Number(cart.items[idx].qty || 0) + Number(delta || 0);
+    if (next <= 0) cart.items.splice(idx, 1);
+    else cart.items[idx].qty = next;
+    setCart(cart);
+    renderCartDrawer();
+  }
+
+  function removeCartItem(productId) {
+    const cart = getCart();
+    cart.items = Array.isArray(cart.items) ? cart.items : [];
+    cart.items = cart.items.filter((x) => x.productId !== productId);
+    setCart(cart);
+    renderCartDrawer();
+  }
+
+  function syncCartUI() {
+    const countEl = qs('#headerCartCount');
+    if (countEl) countEl.textContent = String(cartCount());
+  }
+
+  function openCartDrawer() {
+    const drawer = qs('#cartDrawer');
+    if (!drawer) return;
+    drawer.hidden = false;
+    const btn = qs('#headerCartBtn');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    renderCartDrawer();
+  }
+
+  function closeCartDrawer() {
+    const drawer = qs('#cartDrawer');
+    if (!drawer) return;
+    drawer.hidden = true;
+    const btn = qs('#headerCartBtn');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderCartDrawer() {
+    const drawer = qs('#cartDrawer');
+    const list = qs('#cartItems');
+    const totalEl = qs('#cartTotal');
+    const hintEl = qs('#cartHint');
+    const checkoutBtn = qs('#cartCheckoutBtn');
+    if (!drawer || !list || !totalEl) return;
+
+    const cart = getCart();
+    const items = Array.isArray(cart.items) ? cart.items : [];
+
+    if (items.length === 0) {
+      list.innerHTML = '<div class="muted">سبد خرید شما خالی است.</div>';
+      totalEl.textContent = '0';
+      if (hintEl) hintEl.textContent = 'برای اضافه کردن محصول، روی «افزودن به سبد» بزنید.';
+      if (checkoutBtn) checkoutBtn.classList.add('is-disabled');
       return;
     }
 
-    listEl.innerHTML = orders.map(o => {
-      const total = (Array.isArray(o.items) ? o.items.reduce((s, it) => s + (Number(it.unitPrice)||0) * (Number(it.qty)||0), 0) : 0);
-      const itemsHtml = (Array.isArray(o.items) ? o.items.map(it => {
-        const meta = it.meta ? `<div class="orders-item__meta">${escapeHTML(it.meta)}</div>` : '';
-        return `
-          <div class="orders-item">
-            <div class="orders-item__title">${escapeHTML(it.title || 'محصول')}</div>
-            ${meta}
-            <div class="orders-item__sub">${formatIR(Number(it.unitPrice)||0)} تومان × ${Number(it.qty)||1}</div>
-          </div>
-        `;
-      }).join('') : '');
-
-      const reviewTxt = (o.review && o.review.text) ? escapeHTML(o.review.text) : '';
-      const reviewRate = (o.review && Number(o.review.rate)) ? Number(o.review.rate) : '';
-
+    const rows = items.map((it) => {
+      const title = it.title || 'محصول';
+      const price = formatIR(it.unitPrice || 0);
       return `
-        <details class="order-card">
-          <summary class="order-card__sum">
-            <div class="order-sum__right">
-              <div class="order-code">${escapeHTML(o.id || '—')}</div>
-              <div class="order-date">${escapeHTML(o.createdAt || '—')}</div>
-            </div>
-            <div class="order-sum__left">
-              <div class="order-status">${escapeHTML(o.status || '—')}</div>
-              <div class="order-total">${formatIR(total)} تومان</div>
-            </div>
-          </summary>
-
-          <div class="order-card__body">
-            <div class="order-row"><span class="k">آدرس:</span><span class="v">${escapeHTML(o.address || '—')}</span></div>
-            <div class="order-row"><span class="k">روش پرداخت:</span><span class="v">${escapeHTML(o.paymentType || '—')}</span></div>
-
-            <div class="order-items">${itemsHtml}</div>
-
-            <div class="order-review">
-              <div class="order-review__head">ثبت نظر</div>
-              <div class="order-review__grid">
-                <select class="order-review__rate" data-review-rate="${escapeHTML(o.id)}" aria-label="امتیاز">
-                  <option value="">امتیاز</option>
-                  <option value="5" ${reviewRate===5?'selected':''}>5</option>
-                  <option value="4" ${reviewRate===4?'selected':''}>4</option>
-                  <option value="3" ${reviewRate===3?'selected':''}>3</option>
-                  <option value="2" ${reviewRate===2?'selected':''}>2</option>
-                  <option value="1" ${reviewRate===1?'selected':''}>1</option>
-                </select>
-                <input class="order-review__text" data-review-text="${escapeHTML(o.id)}" type="text" placeholder="نظر شما..." value="${reviewTxt}">
-                <button type="button" class="btn btn-primary order-review__btn" data-review-save="${escapeHTML(o.id)}">ثبت</button>
-              </div>
-            </div>
+        <div class="cart-item" data-pid="${it.productId}">
+          <div class="cart-item__meta">
+            <div class="cart-item__title">${title}</div>
+            <div class="cart-item__price">${price} تومان</div>
           </div>
-        </details>
+          <div class="cart-item__qty">
+            <button class="cart-qty-btn" type="button" data-qty="-1" aria-label="کم کردن">−</button>
+            <span class="cart-qty-val">${it.qty}</span>
+            <button class="cart-qty-btn" type="button" data-qty="1" aria-label="زیاد کردن">+</button>
+          </div>
+          <button class="cart-item__remove" type="button" data-remove aria-label="حذف">حذف</button>
+        </div>
       `;
     }).join('');
+
+    list.innerHTML = rows;
+    totalEl.textContent = `${formatIR(cartTotal(cart))} تومان`;
+
+    const user = getCurrentUser();
+    if (hintEl) {
+      hintEl.textContent = user ? `اعتبار شما: ${formatIR(user.credit)} تومان` : 'برای ادامه و پرداخت، ابتدا وارد شوید.';
+    }
+    if (checkoutBtn) {
+      checkoutBtn.classList.toggle('is-disabled', !user);
+      checkoutBtn.setAttribute('href', '#');
+}
   }
 
-  function openOrdersModal() {
-    const modal = qs('#ordersModal');
-    if (!modal) return;
-    modal.hidden = false;
-    document.documentElement.classList.add('modal-open');
+  function bindCartUI() {
+    const btn = qs('#headerCartBtn');
+    if (btn) btn.addEventListener('click', () => openCartDrawer());
 
+    document.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+
+      if (t.matches('[data-cart-close]')) {
+        closeCartDrawer();
+      }
+
+      const itemEl = t.closest('.cart-item');
+      if (itemEl && (t.matches('[data-qty]') || t.closest('[data-qty]'))) {
+        const btn = t.matches('[data-qty]') ? t : t.closest('[data-qty]');
+        const delta = Number(btn?.getAttribute('data-qty') || 0);
+        const pid = itemEl.getAttribute('data-pid');
+        if (pid) changeCartQty(pid, delta);
+      }
+
+      if (itemEl && (t.matches('[data-remove]') || t.closest('[data-remove]'))) {
+        const pid = itemEl.getAttribute('data-pid');
+        if (pid) removeCartItem(pid);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCartDrawer();
+    });
+  }
+
+  function bindAddToCart() {
+    document.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      const btn = t.closest('.js-add-to-cart');
+      if (!btn) return;
+
+      const pid = btn.getAttribute('data-product-id') || btn.getAttribute('data-id') || '';
+      const card = btn.closest('.product-card');
+      
+      const titleEl = card ? (card.querySelector('.product-title') || card.querySelector('.product-name')) : null;
+      
+      // قیمت را از چند منبع بخوان: (۱) data-price (۲) price-now (۳) price-new
+      const priceFromData = card ? Number(card.getAttribute('data-price') || 0) : 0;
+      const priceEl =
+        card
+          ? (card.querySelector('.product-price .price-now') || card.querySelector('.product-prices .price-new'))
+          : null;
+      
+      const title = titleEl ? titleEl.textContent.trim() : 'محصول';
+      const unitPrice = priceFromData > 0
+        ? priceFromData
+        : (priceEl ? parsePriceIRR(priceEl.textContent) : 0);
+      
+      // مشخصات کوتاه (اختیاری ولی مفید برای “مشخصات” در سبد)
+      const metaEl = card ? (card.querySelector('.product-meta') || card.querySelector('.product-sub')) : null;
+      const meta = metaEl ? metaEl.textContent.trim() : '';
+      
+      if (!pid) return;
+      upsertCartItem({ productId: pid, title, unitPrice, meta, qty: 1 });
+
+      // micro feedback
+      btn.classList.add('is-added');
+      setTimeout(() => btn.classList.remove('is-added'), 600);
+    });
+  }
+
+  // ---------- Checkout (Overlay MVP) ----------
+  const PLANS_KEY = 'bs_plans';
+  const DEFAULT_PLANS = [
+    { id: 'p30_2', title: '۳۰٪ نقد + ۲ قسط', downPercent: 30, installments: 2 },
+    { id: 'p50_3', title: '۵۰٪ نقد + ۳ قسط', downPercent: 50, installments: 3 },
+    { id: 'p0_4',  title: '۴ قسط بدون پیش‌پرداخت', downPercent: 0, installments: 4 }
+  ];
+
+  function getPlans() {
+    const plans = LS.get(PLANS_KEY, null);
+    if (!plans || !Array.isArray(plans) || plans.length === 0) {
+      LS.set(PLANS_KEY, DEFAULT_PLANS);
+      return DEFAULT_PLANS;
+    }
+    return plans;
+  }
+
+  const checkoutState = {
+    discountCode: '',
+    discountPercent: 0,
+    payMethod: 'cash',
+    selectedPlanId: ''
+  };
+
+  function openCheckoutOverlay() {
+    const ov = qs('#checkoutOverlay');
+    if (!ov) return;
+    ov.hidden = false;
+    document.body.classList.add('modal-open');
+    renderCheckout();
+  }
+
+  function closeCheckoutOverlay() {
+    const ov = qs('#checkoutOverlay');
+    if (!ov) return;
+    ov.hidden = true;
+    document.body.classList.remove('modal-open');
+    checkoutState.selectedPlanId = '';
+    checkoutState.discountCode = '';
+    checkoutState.discountPercent = 0;
+    const msg = qs('#checkoutMsg');
+    if (msg) { msg.hidden = true; msg.textContent = ''; }
+  }
+
+  function openPayModal(totalText) {
+    const m = qs('#payModal');
+    if (!m) return;
+    m.hidden = false;
+    document.body.classList.add('modal-open');
+    const hint = qs('#payHint');
+    if (hint) hint.textContent = totalText ? `مبلغ قابل پرداخت: ${totalText}` : '';
+  }
+
+  function closePayModal() {
+    const m = qs('#payModal');
+    if (!m) return;
+    m.hidden = true;
+    document.body.classList.remove('modal-open');
+    const form = qs('#payForm');
+    form && form.reset();
+  }
+
+  function computeTotals(cart) {
+    const items = Array.isArray(cart.items) ? cart.items : [];
+    const total = cartTotal(cart);
+
+    // savings: difference between oldUnitPrice and unitPrice when available
+    const savings = items.reduce((sum, it) => {
+      const oldP = Number(it.oldUnitPrice || 0);
+      const newP = Number(it.unitPrice || 0);
+      const qty = Number(it.qty || 0);
+      const s = oldP > newP ? (oldP - newP) * qty : 0;
+      return sum + s;
+    }, 0);
+
+    const discount = Math.round(total * (checkoutState.discountPercent / 100));
+    const payable = Math.max(0, total - discount);
+
+    return { total, savings, discount, payable };
+  }
+
+  function renderCheckout() {
     const user = getCurrentUser();
     if (!user) return;
 
-    // tabs for personnel -> child
-    const tabs = qs('#ordersTabs');
-    if (tabs) {
-      const childId = (user.role === 'personnel')
-        ? (DEMO_USERS.find(u => u.role === 'student' && u.parentId === user.id)?.id || '')
-        : '';
-      tabs.hidden = !childId;
-      if (!childId) {
-        tabs.querySelectorAll('[data-orders-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.ordersTab === 'mine'));
+    const cart = getCart();
+    const items = Array.isArray(cart.items) ? cart.items : [];
+
+    const itemsEl = qs('#checkoutItems');
+    const totalEl = qs('#checkoutTotal');
+    const savingsEl = qs('#checkoutSavings');
+    const creditEl = qs('#checkoutCredit');
+    const remEl = qs('#checkoutRemaining');
+
+    const cashBox = qs('#checkoutCashBox');
+    const creditBox = qs('#checkoutCreditBox');
+
+    const { total, savings, payable } = computeTotals(cart);
+
+    if (itemsEl) {
+      if (items.length === 0) {
+        itemsEl.innerHTML = '<div class="muted">سبد خرید شما خالی است.</div>';
+      } else {
+        itemsEl.innerHTML = items.map((it) => {
+          const name = escapeHTML(it.title || 'محصول');
+          const meta = it.meta ? `<div class="checkout-item__meta">${escapeHTML(it.meta)}</div>` : '';
+          const qty = Number(it.qty || 0);
+          const line = formatIR(qty * Number(it.unitPrice || 0));
+          return `
+            <div class="checkout-item">
+              <div class="checkout-item__left">
+                <div class="checkout-item__name">${name}</div>
+                ${meta}
+                <div class="checkout-item__qty">تعداد: ${qty}</div>
+              </div>
+              <div class="checkout-item__price">${line} تومان</div>
+            </div>
+          `;
+        }).join('');
       }
-      tabs.dataset.childId = childId;
     }
 
-    renderOrdersList(user.id);
+    if (totalEl) totalEl.textContent = `${formatIR(payable)} تومان`;
+    if (savingsEl) savingsEl.textContent = `${formatIR(savings)} تومان`;
+    if (creditEl) creditEl.textContent = `${formatIR(user.credit)}`;
+    if (remEl) remEl.textContent = `${formatIR(Math.max(0, Number(user.credit || 0) - payable))} تومان`;
+
+    // method toggle
+    if (cashBox && creditBox) {
+      cashBox.hidden = checkoutState.payMethod !== 'cash';
+      creditBox.hidden = checkoutState.payMethod !== 'credit';
+    }
+
+    renderPlans(payable);
   }
 
-  function closeOrdersModal() {
-    const modal = qs('#ordersModal');
-    if (!modal) return;
-    modal.hidden = true;
-    document.documentElement.classList.remove('modal-open');
+  function renderPlans(payable) {
+    const host = qs('#installmentPlans');
+    const preview = qs('#installmentPreview');
+    const confirmBtn = qs('#checkoutConfirmCredit');
+    if (!host) return;
+
+    const plans = getPlans();
+    host.innerHTML = plans.map((p) => {
+      const meta = p.downPercent > 0
+        ? `پیش‌پرداخت: ${p.downPercent}٪ • تعداد اقساط: ${p.installments}`
+        : `بدون پیش‌پرداخت • تعداد اقساط: ${p.installments}`;
+      const sel = checkoutState.selectedPlanId === p.id ? ' is-selected' : '';
+      return `
+        <div class="plan${sel}" role="button" tabindex="0" data-plan="${p.id}">
+          <div class="plan__title">${escapeHTML(p.title)}</div>
+          <div class="plan__meta">${escapeHTML(meta)}</div>
+        </div>
+      `;
+    }).join('');
+
+    const p = plans.find((x) => x.id === checkoutState.selectedPlanId);
+    if (!p) {
+      if (preview) preview.hidden = true;
+      if (confirmBtn) confirmBtn.disabled = true;
+      return;
+    }
+
+    const down = Math.round(payable * (p.downPercent / 100));
+    const rest = Math.max(0, payable - down);
+    const each = p.installments > 0 ? Math.ceil(rest / p.installments) : 0;
+
+    if (preview) {
+      preview.hidden = false;
+      preview.innerHTML = `
+        <div><strong>پیش‌پرداخت:</strong> ${formatIR(down)} تومان</div>
+        <div><strong>مبلغ هر قسط:</strong> ${formatIR(each)} تومان</div>
+        <div class="muted">زمان‌بندی اقساط پس از تایید نمایش داده می‌شود.</div>
+      `;
+    }
+    if (confirmBtn) confirmBtn.disabled = false;
   }
 
-  function bindOrdersUI() {
-    const link = qs('#userMenuOrders') || qs('#userMenuCart'); // fallback id
-    const mLink = qs('#mobileUserOrders') || qs('#mobileUserCart'); // if exists later
+  function finalizeOrder({ paymentType, installmentPlan }) {
+    const user = getCurrentUser();
+    if (!user) return { ok: false, msg: 'ابتدا وارد شوید.' };
 
-    const open = (e) => {
-      e && e.preventDefault();
-      const user = getCurrentUser();
-      if (!user) {
-        // open auth popover if available
-        const authBtn = qs('#headerAuthBtn');
-        if (authBtn) authBtn.click();
-        return;
+    const cart = getCart();
+    const items = Array.isArray(cart.items) ? cart.items : [];
+    if (items.length === 0) return { ok: false, msg: 'سبد خرید خالی است.' };
+
+    const { payable, savings, discount } = computeTotals(cart);
+
+    // credit check for credit method
+    if (paymentType !== 'نقدی') {
+      if (Number(user.credit || 0) < payable) {
+        return { ok: false, msg: 'اعتبار کافی نیست.' };
       }
-      ensureOrdersModal();
-      openOrdersModal();
+      // deduct credit
+      const users = LS.get(KEYS.USERS, {});
+      const nextUser = { ...user, credit: Number(user.credit || 0) - payable };
+      users[user.id] = nextUser;
+      LS.set(KEYS.USERS, users);
+    }
+
+    const now = new Date();
+    const createdAt = now.toLocaleDateString('fa-IR');
+    const id = `TRK-${Math.floor(10000 + Math.random() * 89999)}`;
+
+    const order = {
+      id,
+      userId: user.id,
+      createdAt,
+      status: 'موفق',
+      address: user.address || '—',
+      paymentType,
+      discount,
+      savings,
+      installmentPlan: installmentPlan || null,
+      items: items.map((it) => ({
+        productId: it.productId,
+        title: it.title,
+        qty: it.qty,
+        unitPrice: it.unitPrice
+      }))
     };
 
-    on(link, 'click', open);
-    on(mLink, 'click', open);
+    const orders = getOrders();
+    orders.push(order);
+    LS.set(KEYS.ORDERS, orders);
 
-    // close
-    document.addEventListener('click', (e) => {
+    // clear cart
+    LS.set(KEYS.CART, { items: [] });
+    syncCartUI();
+    syncAuthUI();
+    renderCartDrawer();
+
+    return { ok: true, order };
+  }
+
+  function bindCheckoutUI() {
+    // open checkout from cart
+    on(document, 'click', (e) => {
       const t = e.target;
-      if (t && t.hasAttribute('data-orders-close')) closeOrdersModal();
+      if (!(t instanceof Element)) return;
+
+      if (t.closest('#cartCheckoutBtn')) {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) {
+          // open login popover/sheet
+          const desktopBtn = qs('#headerAuthBtn');
+          if (desktopBtn && !desktopBtn.hidden) desktopBtn.click();
+          const msg = qs('#cartHint');
+          if (msg) msg.textContent = 'برای ادامه و پرداخت، ابتدا وارد شوید.';
+          return;
+        }
+        closeCartDrawer();
+        openCheckoutOverlay();
+      }
+
+      if (t.matches('[data-checkout-close]')) {
+        closeCheckoutOverlay();
+      }
+
+      if (t.matches('[data-pay-close]')) {
+        closePayModal();
+      }
+
+      const plan = t.closest('[data-plan]');
+      if (plan) {
+        const pid = plan.getAttribute('data-plan');
+        checkoutState.selectedPlanId = pid || '';
+        renderCheckout();
+      }
     });
 
-    // filters
-    on(document, 'input', (e) => {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (e.target && (e.target.id === 'ordersSearch')) renderOrdersList(currentOrdersUserId());
-    });
+    // pay method change
     on(document, 'change', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      if (t.matches('input[name="payMethod"]')) {
+        checkoutState.payMethod = t.value === 'credit' ? 'credit' : 'cash';
+        renderCheckout();
+      }
+    });
+
+    // discount apply
+    const applyBtn = qs('#checkoutApplyDiscount');
+    on(applyBtn, 'click', () => {
+      const input = qs('#checkoutDiscountCode');
+      const code = String(input?.value || '').trim().toUpperCase();
+      checkoutState.discountCode = code;
+
+      // demo codes
+      if (code === 'BEHSAYAR10') checkoutState.discountPercent = 10;
+      else if (code === 'FAMILY15') checkoutState.discountPercent = 15;
+      else checkoutState.discountPercent = 0;
+
+      const msg = qs('#checkoutMsg');
+      if (msg) {
+        if (checkoutState.discountPercent > 0) {
+          msg.textContent = `کد تخفیف اعمال شد (${checkoutState.discountPercent}٪).`;
+          msg.hidden = false;
+        } else if (code) {
+          msg.textContent = 'کد تخفیف معتبر نیست.';
+          msg.hidden = false;
+        } else {
+          msg.textContent = '';
+          msg.hidden = true;
+        }
+      }
+      renderCheckout();
+    });
+
+    // cash pay
+    const cashBtn = qs('#checkoutPayCash');
+    on(cashBtn, 'click', () => {
       const user = getCurrentUser();
       if (!user) return;
-      if (e.target && (e.target.id === 'ordersStatus')) renderOrdersList(currentOrdersUserId());
-      if (e.target && e.target.matches('[data-orders-tab]')) {
-        const tab = e.target.dataset.ordersTab;
-        const tabs = qs('#ordersTabs');
-        if (!tabs) return;
-        tabs.querySelectorAll('[data-orders-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.ordersTab === tab));
-        renderOrdersList(tab === 'child' ? (tabs.dataset.childId || user.id) : user.id);
-      }
-      if (e.target && e.target.matches('[data-review-rate]')) {
-        // no-op, saved on button
-      }
+      const cart = getCart();
+      const { payable } = computeTotals(cart);
+      if (payable <= 0) return;
+      openPayModal(`${formatIR(payable)} تومان`);
     });
 
-    // save review
-    document.addEventListener('click', (e) => {
-      const btn = e.target && e.target.closest ? e.target.closest('[data-review-save]') : null;
-      if (!btn) return;
-      const orderId = btn.getAttribute('data-review-save');
-      const rateEl = qs(`[data-review-rate="${CSS.escape(orderId)}"]`);
-      const textEl = qs(`[data-review-text="${CSS.escape(orderId)}"]`);
-      const rate = rateEl ? Number(rateEl.value || 0) : 0;
-      const text = textEl ? String(textEl.value || '').trim() : '';
-
-      const all = getOrders();
-      const idx = all.findIndex(o => o && o.id === orderId);
-      if (idx >= 0) {
-        all[idx].review = { rate: rate || null, text };
-        setOrders(all);
+    // pay form submit -> success
+    const payForm = qs('#payForm');
+    on(payForm, 'submit', (e) => {
+      e.preventDefault();
+      const res = finalizeOrder({ paymentType: 'نقدی' });
+      const msg = qs('#checkoutMsg');
+      if (!res.ok) {
+        if (msg) { msg.textContent = res.msg; msg.hidden = false; }
+        return;
       }
+      closePayModal();
+      if (msg) {
+        msg.textContent = `پرداخت موفق بود. کد رهگیری: ${res.order.id}`;
+        msg.hidden = false;
+      }
+      renderCheckout();
+    });
+
+    // credit confirm
+    const creditConfirm = qs('#checkoutConfirmCredit');
+    on(creditConfirm, 'click', () => {
+      const plans = getPlans();
+      const p = plans.find((x) => x.id === checkoutState.selectedPlanId);
+      const msg = qs('#checkoutMsg');
+      if (!p) {
+        if (msg) { msg.textContent = 'لطفاً یک شرایط اقساط را انتخاب کنید.'; msg.hidden = false; }
+        return;
+      }
+      const res = finalizeOrder({ paymentType: 'اعتباری/اقساط', installmentPlan: p });
+      if (!res.ok) {
+        if (msg) { msg.textContent = res.msg; msg.hidden = false; }
+        return;
+      }
+      if (msg) {
+        msg.textContent = `خرید با موفقیت ثبت شد. کد رهگیری: ${res.order.id}`;
+        msg.hidden = false;
+      }
+      renderCheckout();
     });
   }
 
-  function currentOrdersUserId() {
-    const user = getCurrentUser();
-    if (!user) return '';
-    const tabs = qs('#ordersTabs');
-    if (!tabs || tabs.hidden) return user.id;
-    const active = tabs.querySelector('.orders-tab.is-active');
-    if (active && active.dataset.ordersTab === 'child') return tabs.dataset.childId || user.id;
-    return user.id;
-  }
-
---------- boot ----------
+// ---------- boot ----------
   function boot() {
     ensureSeedUsers();
     ensureSeedOrders();
-    ensureOrdersModal();
     bindHeaderAuth();
     bindUserMenu();
-    bindOrdersUI();
     bindSheets();
     bindMobileAuth();
     bindMobileCats();
     bindCategoriesDropdown();
     bindHeaderBottomCollapse();
+    bindCartUI();
+    bindAddToCart();
+    bindCheckoutUI();
     syncAuthUI();
+    syncCartUI();
   }
 
   if (document.readyState === 'loading') {
