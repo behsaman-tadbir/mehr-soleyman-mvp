@@ -1950,15 +1950,21 @@ body.modal-open{overflow:hidden}.auth-trigger {
 @media (max-width: 768px) {
   .checkout-overlay__panel,
   .pay-modal__panel {
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     left: 0;
     transform: none;
     width: 100vw;
-    max-height: 100dvh;
+
+    /* 👇 مهم‌ترین خط */
+    max-height: calc(
+      100dvh
+      - env(safe-area-inset-bottom, 0px)
+    );
+
     border-radius: 0;
   }
 }
-.checkout-overlay__panel,
+erlay__panel,
 .pay-modal__panel{
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
