@@ -1514,9 +1514,11 @@ function initProductsPage(){
   applyFromQueryString();
   refresh();
 
-  [q,cat,grade,sort].forEach(el => {
-    if (!el) return;
-    el.addEventListener('input', refresh);
-    el.addEventListener('change', refresh);
-  });
+   if (q) q.addEventListener('input', () => refresh('filter'));
+   if (q) q.addEventListener('change', () => refresh('filter'));
+   
+   if (cat) cat.addEventListener('change', () => refresh());
+   if (grade) grade.addEventListener('change', () => refresh());
+   
+   if (sort) sort.addEventListener('change', () => refresh());
 }
