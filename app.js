@@ -202,14 +202,46 @@ const formatIR = (n) => {
     if (changed) LS.set(KEYS.USERS, users);
   }
    
+       // Merge but NEVER allow stored role/roleLabel to override seed role
+       const prev = users[u.id] || {};
+       const merged = { ...u, ...prev };
+   
+       // ✅ lock role from seed (prevents admin leak)
+       merged.role = u.role;
+       merged.roleLabel = u.roleLabel;
+   
+       // keep password if user changed it (demo)
+       merged.password = prev.password || u.password;
+   
+       // keep credit if it was changed by admin
+       merged.credit = Number.isFinite(Number(prev.credit)) ? Number(prev.credit) : Number(u.credit || 0);
+   
+       // keep relationships from seed (stable)
+       if (u.parentId !== undefined) merged.parentId = u.parentId;
+       if (u.children !== undefined) merged.children = u.children;
+   
+       users[u.id] = merged;
+       changed = true;
+     }
+   
+     if (changed) LS.set(KEYS.USERS, users);
+   }
 
 
   function getSession() {
-    return LS.get(KEYS.SESSION, null);
+    const s = LS.get(KEYS.SESSION, null);
+    if (!s || typeof s !== 'object') return { userId: null, role: 'guest', ts: 0 };
+    if (!('userId' in s)) s.userId = null;
+    if (!s.role) s.role = 'guest';
+    if (!s.ts) s.ts = 0;
+    return s;
   }
 
   function setSession(userId) {
-    LS.set(KEYS.SESSION, { userId, ts: Date.now() });
+    const users = LS.get(KEYS.USERS, {});
+    const u = users && users[userId] ? users[userId] : null;
+    const role = u && u.role ? u.role : 'guest';
+    LS.set(KEYS.SESSION, { userId, role, ts: Date.now() });
   }
 
   function clearSession() {
@@ -258,6 +290,14 @@ const formatIR = (n) => {
     };
   }
 
+
+    return {
+      downPayment: down,
+      eachInstallment: each,
+      count: n,
+      installments
+    };
+  }
 
 
   function login(username, password) {
@@ -617,6 +657,8 @@ const formatIR = (n) => {
     const isAdmin = isAdminUser(user);
     // Admin entry points are outside avatar menu (hard gated)
     qsa('[data-admin-link]').forEach((el) => { el.hidden = !isAdmin; });
+    const headerAdminBtn = qs('#headerAdminBtn');
+    if (headerAdminBtn) headerAdminBtn.hidden = !isAdmin;
     const authArea = qs('#authArea');
     const loginBtn = qs('#headerAuthBtn');
     const userMenu = qs('#headerUserMenu');
@@ -664,7 +706,7 @@ const formatIR = (n) => {
       const adminLink = qs('#userMenuAdminPage');
       const ordersLink = qs('#userMenuOrders');
       
-      const isAdmin = user && user.role === 'admin';
+      const isAdmin = isAdminUser(user);
       
       // Admin page: hidden by default, only show for admin
       if (adminLink) adminLink.hidden = !isAdmin;
