@@ -9,7 +9,7 @@
   const qs = (s, r = document) => r.querySelector(s);
   const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
   const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
-filterCards()
+
   // Prevent accidental double-binding (e.g., if app.js is included twice)
   const markBound = (el, key) => {
     if (!el) return false;
@@ -1352,7 +1352,6 @@ function ensureSeedUsers() {
     bindOrdersUI();
     syncAuthUI();
     syncCartUI();
-    // initProductsPage();
   }
 
   if (document.readyState === 'loading') {
@@ -1435,7 +1434,7 @@ function ensureSeedUsers() {
   start();
 })();
 
-  document.addEventListener('DOMContentLoaded', function initProductsPage(){
+(function initProductsPage(){
   const isProductsPage = document.body && document.body.classList.contains('page-products');
   if (!isProductsPage) return;
 
@@ -1447,7 +1446,7 @@ function ensureSeedUsers() {
   const grade = document.getElementById('productsGrade');
   const sort = document.getElementById('productsSort');
 
-  const cards = Array.from(grid.querySelectorAll('.product-card'));
+  const cards = Array.from(grid.querySelectorAll('.product-card[data-id]'));
 
   function norm(s){
     return (s || '').toString().trim().toLowerCase();
@@ -1465,10 +1464,7 @@ function ensureSeedUsers() {
     const gradeVal = (grade && grade.value) || 'all';
 
     cards.forEach(card => {
-    const title = norm(
-      card.dataset.title ||
-      card.querySelector('.product-title, .product-name')?.textContent
-    );
+      const title = norm(card.dataset.title);
       const c = card.dataset.cat || 'all';
       const g = card.dataset.grade || 'all';
 
@@ -1494,9 +1490,9 @@ function ensureSeedUsers() {
     visible.sort((a,b) => {
       if (mode === 'best') return getNum(b,'sold') - getNum(a,'sold');
       if (mode === 'new') return (new Date(b.dataset.created || 0)) - (new Date(a.dataset.created || 0));
-      if (mode === 'discount_desc' || mode === 'discount') return getNum(b,'discount') - getNum(a,'discount');
-      if (mode === 'price_desc' || mode === 'priceHigh') return getNum(b,'price') - getNum(a,'price');
-      if (mode === 'price_asc' || mode === 'priceLow') return getNum(a,'price') - getNum(b,'price');
+      if (mode === 'discount') return getNum(b,'discount') - getNum(a,'discount');
+      if (mode === 'priceHigh') return getNum(b,'price') - getNum(a,'price');
+      if (mode === 'priceLow') return getNum(a,'price') - getNum(b,'price');
       return 0;
     });
 
@@ -1504,21 +1500,17 @@ function ensureSeedUsers() {
     visible.forEach(el => grid.appendChild(el));
   }
 
-   function refresh(only){
-     filterCards();
-     if (only !== 'filter') sortCards();
-   }
-
-  
+  function refresh(){
+    filterCards();
+    sortCards();
+  }
 
   applyFromQueryString();
   refresh();
 
-   if (q) q.addEventListener('input', () => refresh('filter'));
-   if (q) q.addEventListener('change', () => refresh('filter'));
-   
-   if (cat) cat.addEventListener('change', () => refresh());
-   if (grade) grade.addEventListener('change', () => refresh());
-   
-   if (sort) sort.addEventListener('change', () => refresh());
-  }, { once: true });
+  [q,cat,grade,sort].forEach(el => {
+    if (!el) return;
+    el.addEventListener('input', refresh);
+    el.addEventListener('change', refresh);
+  });
+})();
