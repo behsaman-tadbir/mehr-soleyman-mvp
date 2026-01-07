@@ -1352,7 +1352,7 @@ function ensureSeedUsers() {
     bindOrdersUI();
     syncAuthUI();
     syncCartUI();
-    initProductsPage();
+    // initProductsPage();
   }
 
   if (document.readyState === 'loading') {
@@ -1435,7 +1435,7 @@ function ensureSeedUsers() {
   start();
 })();
 
-function initProductsPage(){
+  document.addEventListener('DOMContentLoaded', function initProductsPage(){
   const isProductsPage = document.body && document.body.classList.contains('page-products');
   if (!isProductsPage) return;
 
@@ -1521,4 +1521,4 @@ function initProductsPage(){
    if (grade) grade.addEventListener('change', () => refresh());
    
    if (sort) sort.addEventListener('change', () => refresh());
-}
+  }, { once: true });
