@@ -111,6 +111,165 @@ const formatIR = (n) => {
       .replace(/'/g, '&#39;');
   }
 
+  // ---------- Mini Modal (Password / Forgot) ----------
+  function ensureMiniModal() {
+    let m = qs('#bsMiniModal');
+    if (m) return m;
+
+    m = document.createElement('div');
+    m.className = 'bs-mini-modal';
+    m.id = 'bsMiniModal';
+    m.hidden = true;
+    m.innerHTML = `
+      <div class="bs-mini-modal__dialog" role="document">
+        <div class="bs-mini-modal__head">
+          <div class="bs-mini-modal__title" id="bsMiniModalTitle">—</div>
+          <button class="bs-mini-modal__close" type="button" aria-label="بستن" data-bs-mini-close>×</button>
+        </div>
+        <div class="bs-mini-modal__body" id="bsMiniModalBody"></div>
+      </div>
+    `;
+    document.body.appendChild(m);
+
+    // close handlers
+    on(m, 'click', (e) => {
+      const t = e.target;
+      if (t.matches('[data-bs-mini-close]') || t === m) closeMiniModal();
+    });
+    on(document, 'keydown', (e) => {
+      if (e.key === 'Escape' && !m.hidden) closeMiniModal();
+    });
+
+    return m;
+  }
+
+  function openMiniModal(title, bodyHTML, onOpen) {
+    const m = ensureMiniModal();
+    const t = qs('#bsMiniModalTitle', m);
+    const b = qs('#bsMiniModalBody', m);
+    if (t) t.textContent = title || '—';
+    if (b) b.innerHTML = bodyHTML || '';
+    m.hidden = false;
+    document.body.classList.add('modal-open');
+    document.documentElement.classList.add('bs-modal-open');
+    // focus first input if any
+    const first = m.querySelector('input,button,select,textarea,a[href]');
+    first && first.focus && first.focus();
+    if (typeof onOpen === 'function') onOpen(m);
+  }
+
+  function closeMiniModal() {
+    const m = qs('#bsMiniModal');
+    if (!m) return;
+    m.hidden = true;
+    document.body.classList.remove('modal-open');
+    document.documentElement.classList.remove('bs-modal-open');
+    const b = qs('#bsMiniModalBody', m);
+    if (b) b.innerHTML = '';
+  }
+
+  function renderStars(val) {
+    const v = Math.max(0, Math.min(5, Number(val || 0)));
+    const full = Math.round(v);
+    const stars = Array.from({ length: 5 }).map((_, i) => `<span class="s ${i < full ? 'is-on' : ''}">★</span>`).join('');
+    const num = v ? String(v.toFixed(1)).replace('.0','') : '—';
+    return `<span class="admin-stars" aria-label="امتیاز ${escapeHTML(num)} از ۵">${stars}</span><span class="admin-badge" style="margin-right:6px">⭐ ${escapeHTML(num)}</span>`;
+  }
+
+  function openForgotPasswordModal() {
+    openMiniModal('فراموشی رمز عبور', `
+      <form class="bs-mini-form" id="bsForgotForm">
+        <div class="auth-row">
+          <label class="auth-label" for="bsForgotMobile">شماره موبایل</label>
+          <input class="auth-input" id="bsForgotMobile" inputmode="tel" autocomplete="tel" placeholder="مثلاً 0912xxxxxxx" required>
+        </div>
+        <div class="bs-mini-hint">برای حفظ امنیت، لینک ریست فقط به شماره موبایل ثبت‌شده ارسال می‌شود.</div>
+        <p class="auth-msg" id="bsForgotMsg" role="status" aria-live="polite"></p>
+        <div class="bs-mini-actions">
+          <button class="btn btn-primary" type="submit">ارسال لینک ریست</button>
+          <button class="btn btn-outline" type="button" data-bs-mini-close>انصراف</button>
+        </div>
+      </form>
+    `, (m) => {
+      const form = qs('#bsForgotForm', m);
+      const msg = qs('#bsForgotMsg', m);
+      on(form, 'submit', (e) => {
+        e.preventDefault();
+        const mobile = String(qs('#bsForgotMobile', m)?.value || '').trim();
+
+        if (!mobile || mobile.length < 10) {
+          if (msg) msg.textContent = 'شماره موبایل را صحیح وارد کنید.';
+          return;
+        }
+
+        // MVP: simulate SMS sending (no backend)
+        if (msg) msg.textContent = 'لینک ریست برای شما پیامک شد.';
+        setTimeout(() => { closeMiniModal(); }, 900);
+      });
+    });
+  }
+
+  function openChangePasswordModal() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    openMiniModal('تغییر کلمه عبور', `
+      <form class="bs-mini-form" id="bsPassForm">
+        <div class="auth-row">
+          <label class="auth-label" for="bsOldPass">رمز عبور قبلی</label>
+          <input class="auth-input" id="bsOldPass" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="auth-row">
+          <label class="auth-label" for="bsNewPass1">رمز عبور جدید</label>
+          <input class="auth-input" id="bsNewPass1" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="auth-row">
+          <label class="auth-label" for="bsNewPass2">تکرار رمز عبور جدید</label>
+          <input class="auth-input" id="bsNewPass2" type="password" autocomplete="new-password" required>
+        </div>
+
+        <a class="bs-mini-link" href="#" data-forgot-password>فراموشی رمز عبور</a>
+
+        <p class="auth-msg" id="bsPassMsg" role="status" aria-live="polite"></p>
+        <div class="bs-mini-actions">
+          <button class="btn btn-primary" type="submit">ذخیره تغییرات</button>
+          <button class="btn btn-outline" type="button" data-bs-mini-close>بستن</button>
+        </div>
+      </form>
+    `, (m) => {
+      const form = qs('#bsPassForm', m);
+      const msg = qs('#bsPassMsg', m);
+      on(form, 'click', (e) => {
+        const t = e.target;
+        if (t && t.matches('[data-forgot-password]')) {
+          e.preventDefault();
+          openForgotPasswordModal();
+        }
+      });
+      on(form, 'submit', (e) => {
+        e.preventDefault();
+        const oldP = String(qs('#bsOldPass', m)?.value || '').trim();
+        const n1 = String(qs('#bsNewPass1', m)?.value || '').trim();
+        const n2 = String(qs('#bsNewPass2', m)?.value || '').trim();
+
+        const users = LS.get(KEYS.USERS, {});
+        const u = users[user.id];
+        if (!u) return;
+
+        if (oldP !== String(u.password || '').trim()) { if (msg) msg.textContent = 'رمز عبور قبلی صحیح نیست.'; return; }
+        if (!n1 || n1.length < 4) { if (msg) msg.textContent = 'رمز عبور جدید باید حداقل ۴ کاراکتر باشد.'; return; }
+        if (n1 !== n2) { if (msg) msg.textContent = 'رمز عبور جدید و تکرار آن یکسان نیست.'; return; }
+
+        users[user.id] = { ...u, password: n1 };
+        LS.set(KEYS.USERS, users);
+        if (msg) msg.textContent = 'رمز عبور با موفقیت تغییر کرد.';
+        setTimeout(() => { closeMiniModal(); }, 900);
+      });
+    });
+  }
+
+
+
 
   
   const DEMO_ORDERS = [
@@ -397,6 +556,32 @@ const formatIR = (n) => {
       openOrdersOverlay();
     });
   }
+
+  // ---------- UI: Password Change + Forgot Password (MVP) ----------
+  function bindPasswordRecoveryUI() {
+    if (markBound(document.documentElement, 'passwordRecoveryUI')) return;
+
+    on(document, 'click', (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+
+      const forgot = t.closest('[data-forgot-password]');
+      if (forgot) {
+        e.preventDefault();
+        openForgotPasswordModal();
+        return;
+      }
+
+      const passBtn = t.closest('[data-open-password-change], #userMenuPassword');
+      if (passBtn) {
+        e.preventDefault();
+        openChangePasswordModal();
+        return;
+      }
+    });
+  }
+
+
 
   // ---------- UI: Bottom sheets (Mobile) ----------
   function bindSheets() {
@@ -1735,11 +1920,61 @@ const formatIR = (n) => {
   function renderAdminReports() {
     const q = String(qs('#adminReportQ')?.value || '').trim().toLowerCase();
     const users = LS.get(KEYS.USERS, {});
-    const orders = getOrders();
+    const orders = Array.isArray(getOrders()) ? getOrders() : [];
 
-    // aggregate by product title
+    const norm = (s) => String(s || '').toLowerCase();
+
+    // ----- Overall KPIs -----
+    const famSet = new Set();
+    let gross = 0;
+    let totalDiscount = 0; // تخفیف بهسایار (کد/کمپین)
+    let providerDiscount = 0; // تخفیف از طرف قرارداد (اختلاف قیمت قدیم/جدید)
+
+    orders.forEach((o) => {
+      const u = users[o.userId];
+      const rootId = (u && u.role === 'student' && u.parentId) ? u.parentId : o.userId;
+      famSet.add(String(rootId));
+
+      const items = Array.isArray(o.items) ? o.items : [];
+      items.forEach((it) => {
+        gross += Number(it.qty || 0) * Number(it.unitPrice || 0);
+      });
+
+      totalDiscount += Number(o.discount || 0);
+      providerDiscount += Number(o.savings || 0);
+    });
+
+    const net = Math.max(0, gross - totalDiscount);
+    const overallHost = qs('#adminOverallReport');
+    if (overallHost) {
+      overallHost.innerHTML = `
+        <div class="admin-kpi-grid">
+          <div class="admin-kpi">
+            <div class="k">۱) به چند خانواده خدمت‌رسانی شده</div>
+            <div class="v"><b>${formatIR(famSet.size)}</b> خانواده</div>
+          </div>
+          <div class="admin-kpi">
+            <div class="k">۲) مبلغ کل خدمت‌رسانی</div>
+            <div class="v"><b>${formatIR(net)}</b> تومان</div>
+          </div>
+          <div class="admin-kpi">
+            <div class="k">۳) مجموع تخفیف داده‌شده (بهسایار)</div>
+            <div class="v"><b>${formatIR(totalDiscount)}</b> تومان</div>
+          </div>
+          <div class="admin-kpi">
+            <div class="k">۴) مجموع تخفیف طرف قرارداد</div>
+            <div class="v"><b>${formatIR(providerDiscount)}</b> تومان</div>
+          </div>
+        </div>
+        <div class="bs-mini-hint" style="margin-top:10px">
+          مبلغ خدمت‌رسانی بر اساس مجموع اقلام سفارش‌ها (پس از تخفیف طرف قرارداد) و کسر تخفیف‌های بهسایار محاسبه شده است.
+        </div>
+      `;
+    }
+
+    // ----- Aggregate by item title -----
     const agg = new Map(); // key -> {title, count, revenue, satSum, satN}
-    (Array.isArray(orders) ? orders : []).forEach((o) => {
+    orders.forEach((o) => {
       const sat = Number(o.satisfaction || 0);
       const items = Array.isArray(o.items) ? o.items : [];
       items.forEach((it) => {
@@ -1752,54 +1987,101 @@ const formatIR = (n) => {
       });
     });
 
-    const aggArr = Array.from(agg.values()).sort((a,b) => b.revenue - a.revenue);
+    const aggArr = Array.from(agg.values()).sort((a, b) => b.revenue - a.revenue);
     const aggHost = qs('#adminAggReport');
     if (aggHost) {
-      aggHost.innerHTML = aggArr.map((x) => {
-        const avg = x.satN ? (x.satSum / x.satN).toFixed(1) : '—';
-        return `
-          <div class="admin-user-card">
-            <div>
-              <div class="admin-user-name">${escapeHTML(x.title)}</div>
-              <div class="admin-user-meta">فروش: ${formatIR(x.count)} • مبلغ: ${formatIR(x.revenue)} تومان • رضایت: ${avg}</div>
-            </div>
+      if (!aggArr.length) {
+        aggHost.innerHTML = '<div class="muted">داده‌ای برای نمایش نیست.</div>';
+      } else {
+        const rows = aggArr.map((x, i) => {
+          const avg = x.satN ? (x.satSum / x.satN) : 0;
+          return `
+            <tr>
+              <td class="muted">${formatIR(i + 1)}</td>
+              <td>${escapeHTML(x.title)}</td>
+              <td>${formatIR(x.count)}</td>
+              <td>${formatIR(x.revenue)} <span class="muted">تومان</span></td>
+              <td>${avg ? renderStars(avg) : '<span class="muted">—</span>'}</td>
+            </tr>
+          `;
+        }).join('');
+
+        aggHost.innerHTML = `
+          <div class="admin-table-wrap" role="region" aria-label="گزارش تجمیعی کالا/خدمت">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>کالا/خدمت</th>
+                  <th>تعداد</th>
+                  <th>مبلغ</th>
+                  <th>میانگین رضایت</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
           </div>
         `;
-      }).join('') || '<div class="muted">داده‌ای برای نمایش نیست.</div>';
+      }
     }
 
+    // ----- Detailed orders (filterable) -----
     const detHost = qs('#adminOrdersReport');
     if (detHost) {
-      const norm = (s) => String(s || '').toLowerCase();
-      const filtered = (Array.isArray(orders) ? orders : []).filter((o) => {
+      const filtered = orders.filter((o) => {
         if (!q) return true;
-        const u = users[o.userId];
-        const parent = u && u.role === 'student' && u.parentId ? users[u.parentId] : null;
-        const hay = [
-          o.id, o.createdAt, o.paymentType, u?.fullName, u?.nationalId, u?.id,
-          parent?.fullName, parent?.positionTitle
-        ].map(norm).join(' ');
+        const u = users[o.userId] || {};
+        const hay = [o.id, o.userId, u.fullName, u.nationalId, u.mobile, u.parentId].map(norm).join(' ');
         return hay.includes(q);
-      }).slice().sort((a,b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+      }).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''), 'fa'));
 
-      detHost.innerHTML = filtered.map((o) => {
-        const u = users[o.userId];
-        const roleLabel = u?.roleLabel || '—';
+      if (!filtered.length) {
+        detHost.innerHTML = '<div class="muted">سفارشی مطابق فیلتر یافت نشد.</div>';
+        return;
+      }
+
+      const rows = filtered.map((o, i) => {
+        const u = users[o.userId] || null;
+        const roleLabel = u?.roleLabel || (u?.role === 'admin' ? 'مدیر سیستم' : u?.role === 'staff' ? 'پرسنل' : 'دانش‌آموز');
         let extra = '';
         if (u && u.role === 'student' && u.parentId && users[u.parentId]) {
           const p = users[u.parentId];
-          extra = ` • فرزندِ ${escapeHTML(p.fullName)}${p.positionTitle ? ' ('+escapeHTML(p.positionTitle)+')' : ''}`;
+          extra = ` (فرزندِ ${escapeHTML(p.fullName)}${p.positionTitle ? ' - '+escapeHTML(p.positionTitle) : ''})`;
         }
+        const orderGross = (Array.isArray(o.items) ? o.items : []).reduce((s, it) => s + (Number(it.qty || 0) * Number(it.unitPrice || 0)), 0);
+        const payable = Math.max(0, orderGross - Number(o.discount || 0));
+
         return `
-          <div class="admin-user-card">
-            <div>
-              <div class="admin-user-name">کد رهگیری: ${escapeHTML(o.id || '—')}</div>
-              <div class="admin-user-meta">${escapeHTML(o.createdAt || '—')} • ${escapeHTML(roleLabel)} • ${escapeHTML(u?.fullName || '—')}${extra}</div>
-              <div class="admin-user-meta">مبلغ: ${formatIR(orderTotal(o))} تومان • پرداخت: ${escapeHTML(o.paymentType || '—')} • رضایت: ${escapeHTML(String(o.satisfaction || '—'))}</div>
-            </div>
-          </div>
+          <tr>
+            <td class="muted">${formatIR(i + 1)}</td>
+            <td>${escapeHTML(o.id || '—')}</td>
+            <td>${escapeHTML(o.createdAt || '—')}</td>
+            <td>${escapeHTML(roleLabel)} • ${escapeHTML(u?.fullName || '—')}${extra}</td>
+            <td>${formatIR(payable)} <span class="muted">تومان</span></td>
+            <td>${escapeHTML(String(o.paymentType || '—'))}</td>
+            <td>${o.satisfaction ? renderStars(Number(o.satisfaction || 0)) : '<span class="muted">—</span>'}</td>
+          </tr>
         `;
-      }).join('') || '<div class="muted">سفارشی مطابق فیلتر یافت نشد.</div>';
+      }).join('');
+
+      detHost.innerHTML = `
+        <div class="admin-table-wrap" role="region" aria-label="گزارش جزئی سفارش‌ها">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>کد رهگیری</th>
+                <th>تاریخ</th>
+                <th>کاربر</th>
+                <th>مبلغ</th>
+                <th>پرداخت</th>
+                <th>امتیاز</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
     }
   }
 
@@ -1923,6 +2205,7 @@ const formatIR = (n) => {
     ensureSeedOrders();
     bindHeaderAuth();
     bindUserMenu();
+    bindPasswordRecoveryUI();
     bindSheets();
     bindMobileAuth();
     bindMobileCats();
