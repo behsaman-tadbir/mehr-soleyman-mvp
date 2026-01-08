@@ -999,14 +999,7 @@ img{
   color:#7f1d1d;
 }
 
-.product-provider .product-logo{
-  width:32px;
-  height:32px;
-  border-radius:10px;
-  object-fit:cover;
-  border:1px solid rgba(15,23,42,0.10);
-  background:#fff;
-}
+
 .product-provider .provider-name{
   font-weight:900;
   font-size:0.88rem;
@@ -1050,13 +1043,7 @@ img{
   gap:8px;
   min-width:0;
 }
-.product-logo{
-  width:34px;
-  height:34px;
-  border-radius:10px;
-  object-fit:cover;
-  border:1px solid rgba(15,23,42,0.10)
-}
+
 .product-name{
   font-weight:900;
   color:var(--text-1);
@@ -2396,11 +2383,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
   box-shadow: 0 6px 14px rgba(15,23,42,0.10);
 }
 .product-card .product-provider .provider-name{ display:none; }
-.product-card .product-provider .product-logo{
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-}
 
 /* Bottom-left: discount + prices as one row */
 .product-card .product-off{
@@ -2462,7 +2444,6 @@ body.modal-open{overflow:hidden}.auth-trigger {
 @media (max-width: 560px){
   .product-card{ padding-bottom: 76px; }
   .product-card .product-provider{ width: 64px; height: 64px; border-radius: 0 0 28px 0; padding: 9px; }
-  .product-card .product-provider .product-logo{ width: 36px; height: 36px; border-radius: 12px; }
   .product-card .product-prices{ left: 68px; gap: 8px; }
   .product-card .product-actions .btn-primary{ padding: 8px 10px; font-size: 0.84rem; }
 }
