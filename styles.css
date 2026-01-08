@@ -929,7 +929,7 @@ img{
   color:var(--text-1)
 }
 .rail-sub{
-
+display: none;
 }
 .rail-link{
   margin-top:6px;
