@@ -920,8 +920,12 @@ img{
   align-content:start
 }
 .rail-head--best{
+  display: flex;
+  justify-content: space-between;
 }
 .rail-head--new{
+  display: flex;
+  justify-content: space-between;
 }
 .rail-title{
   font-size:1.25rem;
@@ -1026,6 +1030,8 @@ img{
 }
 
 .rail-head--deals{
+  display: flex;
+  justify-content: space-between;
 }
 
 .rail--deals .rail-link{
