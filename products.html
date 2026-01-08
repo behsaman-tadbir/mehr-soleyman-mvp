@@ -52,7 +52,7 @@
 <button class="btn btn-primary auth-submit" type="submit">ورود</button>
 <div class="auth-links">
 <a href="register.html">ثبت‌نام</a>
-<a href="#" data-forgot-password>فراموشی رمز عبور</a>
+<a href="login.html">فراموشی رمز عبور</a>
 </div>
 </form>
 </div>
@@ -73,7 +73,7 @@
 </div>
 
 <a class="user-menu__link" data-open-orders="" href="#" id="userMenuOrders">سوابق خرید</a>
-<a class="user-menu__link" href="#" id="userMenuPassword" data-open-password-change>تغییر کلمه عبور</a>
+<a class="user-menu__link" href="dashboard.html#password" id="userMenuPassword">تغییر کلمه عبور</a>
 <button class="user-menu__logout" id="userMenuLogout" type="button">خروج</button>
 </div>
 </div>
@@ -712,6 +712,12 @@
 <div class="admin-list" id="adminNewsList"></div>
 </section>
 <section class="admin-section" data-admin-panel="reports">
+
+<div class="admin-reports">
+  <div class="admin-report-block admin-report-block--overall">
+    <div class="admin-list" id="adminOverallReport"></div>
+  </div>
+</div>
 <div class="admin-toolbar">
 <div class="admin-filters">
 <input autocomplete="off" class="admin-input" id="adminReportQ" placeholder="فیلتر نام/کد…" type="search"/>
@@ -719,10 +725,6 @@
 </div>
 </div>
 <div class="admin-reports">
-<div class="admin-report-block">
-<div class="admin-report-title">گزارشات کلی بهسایار</div>
-<div class="admin-list" id="adminOverallReport"></div>
-</div>
 <div class="admin-report-block">
 <div class="admin-report-title">گزارش تجمیعی کالا/خدمت</div>
 <div class="admin-list" id="adminAggReport"></div>

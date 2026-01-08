@@ -2375,147 +2375,138 @@ body.modal-open{overflow:hidden}.auth-trigger {
 }
 
 
-/* ================================
-   Mini Modal (Password / Forgot)
-   (MVP – no new files)
-================================== */
-.bs-mini-modal{
-  position:fixed;
-  inset:0;
-  z-index:10050;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  padding:clamp(14px, 3vw, 28px);
-  background:rgba(15,23,42,.44);
-  backdrop-filter:saturate(120%) blur(6px);
-}
-.bs-mini-modal[hidden]{display:none !important}
-.bs-mini-modal__dialog{
-  width:min(460px, 94vw);
-  margin-top:clamp(10px, 5vh, 64px);
-  background:rgba(255,255,255,.98);
-  border:1px solid rgba(148,163,184,.35);
-  border-radius:18px;
-  box-shadow:0 24px 64px rgba(15,23,42,.22);
-  overflow:hidden;
-}
-.bs-mini-modal__head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:12px 14px 10px;
-  border-bottom:1px solid rgba(148,163,184,.28);
-}
-.bs-mini-modal__title{font-weight:900}
-.bs-mini-modal__close{
-  width:36px;height:36px;
-  border-radius:12px;
-  border:1px solid rgba(148,163,184,.35);
-  background:#fff;
-  cursor:pointer;
-  font-size:22px;
-  line-height:1;
-}
-.bs-mini-modal__body{padding:12px 14px 14px}
-.bs-mini-form{display:grid;gap:10px}
-.bs-mini-form .auth-row{margin:0}
-.bs-mini-hint{font-size:12px;color:rgba(15,23,42,.68);line-height:1.7}
-.bs-mini-actions{display:flex;gap:10px;margin-top:4px}
-.bs-mini-actions .btn{flex:1}
-.bs-mini-link{
-  display:inline-block;
-  margin-top:8px;
-  font-weight:800;
-  color:color-mix(in oklab,var(--sky) 55%, var(--text) 45%);
-  text-decoration:none;
-}
-.bs-mini-link:hover{text-decoration:underline}
-@media (max-width:560px){
-  .bs-mini-modal__dialog{border-radius:16px}
+/* === Admin Reports: Overall KPIs + Professional Tables === */
+.admin-report-block--overall .admin-list{ gap: 0; }
+
+.admin-report-overall{
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255,255,255,.98);
 }
 
-/* ================================
-   Admin Reports: Professional Tables
-================================== */
-.admin-report-title{
+.admin-report-overall__head{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  font-weight:900;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
 }
-.admin-kpi-grid{
+
+.admin-report-overall__title{
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.2px;
+}
+
+.admin-kpis{
   display:grid;
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
-@media (max-width:1024px){
-  .admin-kpi-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
-}
-@media (max-width:560px){
-  .admin-kpi-grid{grid-template-columns:1fr}
-}
+
 .admin-kpi{
-  border-radius:16px;
-  border:1px solid rgba(15,23,42,.10);
-  background:rgba(255,255,255,.8);
-  padding:12px 12px;
-  box-shadow:0 10px 22px rgba(15,23,42,.08);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(2,132,199,.06), rgba(255,255,255,.95));
+  min-height: 78px;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.admin-kpi .k{font-size:12px;color:rgba(15,23,42,.62);font-weight:800}
-.admin-kpi .v{margin-top:6px;font-weight:950;font-size:1.05rem}
-.admin-kpi .v b{color:var(--accent-orange,#f97316);font-weight:950}
+
+.admin-kpi__label{
+  color: rgba(0,0,0,.65);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.admin-kpi__value{
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.3px;
+}
+
+.admin-kpi__unit{
+  font-weight: 700;
+  font-size: .85rem;
+  color: rgba(0,0,0,.6);
+}
 
 .admin-table-wrap{
-  overflow:auto;
-  border-radius:18px;
-  border:1px solid rgba(15,23,42,.10);
-  background:rgba(255,255,255,.82);
-  box-shadow:0 14px 30px rgba(15,23,42,.08);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.98);
 }
+
 .admin-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  min-width:720px;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
 }
-.admin-table th,
-.admin-table td{
-  padding:10px 12px;
-  text-align:right;
-  border-bottom:1px solid rgba(15,23,42,.08);
-  vertical-align:middle;
-  font-size:13px;
+
+.admin-table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(248,250,252,.98);
+  backdrop-filter: blur(6px);
+  font-weight: 900;
+  font-size: .9rem;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  text-align: right;
+  white-space: nowrap;
 }
-.admin-table th{
-  position:sticky;
-  top:0;
-  background:rgba(255,255,255,.92);
-  font-weight:950;
-  z-index:1;
+
+.admin-table tbody td{
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  font-size: .92rem;
+  vertical-align: top;
 }
-.admin-table tr:last-child td{border-bottom:0}
-.admin-table td.muted,
-.admin-table td .muted{color:rgba(15,23,42,.62)}
-.admin-badge{
+
+.admin-table tbody tr:nth-child(even){
+  background: rgba(2,132,199,.03);
+}
+
+.t-center{ text-align:center; }
+.t-left{ text-align:left; }
+
+.rating{
   display:inline-flex;
   align-items:center;
-  gap:6px;
-  padding:6px 10px;
-  border-radius:999px;
-  border:1px solid rgba(15,23,42,.10);
-  background:rgba(15,23,42,.03);
-  font-weight:900;
-  white-space:nowrap;
-}
-.admin-stars{
-  display:inline-flex;
-  align-items:center;
-  gap:2px;
+  gap: 8px;
+  justify-content:center;
   direction:ltr;
-  font-size:14px;
+  white-space: nowrap;
 }
-.admin-stars .s{opacity:.25}
-.admin-stars .s.is-on{opacity:1}
+
+.rating__stars{
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+.rating__num{
+  font-weight: 900;
+  font-size: .9rem;
+  color: rgba(0,0,0,.75);
+}
+
+.rating--na{
+  color: rgba(0,0,0,.5);
+}
+
+/* Responsive: KPIs */
+@media (max-width: 980px){
+  .admin-kpis{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-table{ min-width: 680px; }
+}
+
+@media (max-width: 560px){
+  .admin-kpis{ grid-template-columns: 1fr; }
+  .admin-table{ min-width: 620px; }
+}
