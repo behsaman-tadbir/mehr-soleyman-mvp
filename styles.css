@@ -920,10 +920,8 @@ img{
   align-content:start
 }
 .rail-head--best{
-  background:linear-gradient(135deg,#e0e7ff,#fce7f3)
 }
 .rail-head--new{
-  background:linear-gradient(135deg,#dcfce7,#cffafe)
 }
 .rail-title{
   font-size:1.25rem;
@@ -931,7 +929,7 @@ img{
   color:var(--text-1)
 }
 .rail-sub{
-  color:#334155
+
 }
 .rail-link{
   margin-top:6px;
@@ -1030,6 +1028,7 @@ img{
 .rail-head--deals{
   background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(255,255,255,0.92));
   border:1px solid rgba(220,38,38,0.16);
+  display: none;
 }
 
 .rail--deals .rail-link{
